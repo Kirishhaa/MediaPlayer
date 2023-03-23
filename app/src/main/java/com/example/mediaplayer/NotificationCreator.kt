@@ -27,7 +27,7 @@ class NotificationCreator(private val context: Context) {
     private val request_next_code = 11
     private val NOTIFICATION_ID = 101
 
-    fun createNotification(audio: Audio, mediaSession: MediaSessionCompat, status: PlaybackStatus){
+    fun createNotification(audio: Audio, mediaSession: MediaSessionCompat?, status: PlaybackStatus){
 
         val image: Int = when (status) {
             PlaybackStatus.PAUSED -> {
@@ -47,7 +47,7 @@ class NotificationCreator(private val context: Context) {
             .setContentText("")
             .setAutoCancel(false)
             .setStyle(MediaStyle()
-                .setMediaSession(mediaSession.sessionToken)
+                .setMediaSession(mediaSession?.sessionToken)
                 .setShowActionsInCompactView(0,1,2))
             .addAction(R.drawable.ic_previous_arrow, "previous", createPendingIntent(request_previous_code, status))
             .addAction(image, "play_pause", createPendingIntent(request_play_pause_code, status))

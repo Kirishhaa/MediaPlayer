@@ -5,20 +5,31 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import com.example.mediaplayer.data.Audio
 
-class AudioPlayer(private val context: Context,
-                  private val audioList: List<Audio>) : MediaPlayer(){
-    private val listener = AudioPlayerListener()
+class AudioPlayer(
+    private val context: Context,
+    private val audioList: List<Audio>,
+) : MediaPlayer() {
     private val storage = StorageUtils(context)
 
-    private var currentAudio:Audio? = null
+    private var listener: AudioPlayerListener? = null
+
+    var currentAudio: Audio? = null
+        private set
     private var currentIndex = -1
 
-    fun initialize(){
+    init{
         currentIndex = storage.readIndex()
 
-        if(currentIndex!=-1 && currentIndex<audioList.size) {
+        if (currentIndex != -1 && currentIndex < audioList.size) {
             currentAudio = audioList[currentIndex]
         } else (context as MediaPlayerService).stopSelf()
+    }
+
+    fun setListener(listener: AudioPlayerListener){
+        this.listener = listener
+    }
+
+    fun initialize() {
 
         setOnErrorListener(listener)
         setOnPreparedListener(listener)
@@ -29,20 +40,21 @@ class AudioPlayer(private val context: Context,
         setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
             setDataSource(currentAudio!!.path)
-        } catch (_:Exception) {
+        } catch (_: Exception) {
             (context as MediaPlayerService).stopSelf()
         }
 
         prepareAsync()
     }
-    fun playAudio(){
-        if(!isPlaying){
+
+    fun playAudio() {
+        if (!isPlaying) {
             start()
         }
     }
 
-    fun playNextAudio(){
-        if(currentIndex==audioList.size-1){
+    fun playNextAudio() {
+        if (currentIndex == audioList.size - 1) {
             currentIndex = 0
         } else currentIndex++
         storage.writeIndex(currentIndex)
@@ -53,9 +65,9 @@ class AudioPlayer(private val context: Context,
         initialize()
     }
 
-    fun playPrevAudio(){
-        if(currentIndex==0){
-            currentIndex = audioList.size-1
+    fun playPrevAudio() {
+        if (currentIndex == 0) {
+            currentIndex = audioList.size - 1
         } else currentIndex--
         storage.writeIndex(currentIndex)
         currentAudio = audioList[currentIndex]
@@ -65,23 +77,34 @@ class AudioPlayer(private val context: Context,
         initialize()
     }
 
-    fun stopAudio(){
-        if(isPlaying) {
+    fun stopAudio() {
+        if (isPlaying) {
             stop()
         }
     }
 
-    fun pauseAudio(){
-        if(isPlaying){
+    fun pauseAudio() {
+        if (isPlaying) {
             pause()
-            currentIndex = currentPosition
         }
     }
 
-    fun resumeAudio(){
-        if(!isPlaying){
+    fun resumeAudio() {
+        if (!isPlaying) {
             seekTo(currentIndex)
             start()
         }
+    }
+
+    fun playNewAudio() {
+        currentIndex = storage.readIndex()
+        if (currentIndex == -1 || currentIndex >= audioList.size) (context as MediaPlayerService).stopSelf()
+        else {
+            currentAudio = audioList[currentIndex]
+        }
+
+        stopAudio()
+        reset()
+        initialize()
     }
 }
