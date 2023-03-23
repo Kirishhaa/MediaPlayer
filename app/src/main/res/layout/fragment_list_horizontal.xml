@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/tv_title_music_list"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="categoty"/>
+
+    <TextView
+        android:id="@+id/tv_see_as_list"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:text="see as list"
+        android:layout_weight="1"
+        android:gravity="end"/>
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_music_list_horizontal"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        tools:listitem="@layout/item_horizontal"
+        tools:itemCount="1"/>
+
+</LinearLayout>
