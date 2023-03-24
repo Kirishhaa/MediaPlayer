@@ -5,14 +5,16 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.fragments.VerticalFragment
+import com.example.mediaplayer.service.MediaPlayerService
+import com.example.mediaplayer.service.NotificationCreator
 
 class MainActivity : AppCompatActivity() {
     private lateinit var musicService: MediaPlayerService
@@ -45,18 +47,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        boundService = savedInstanceState?.getBoolean("isBound") ?: false
         requestPermissions(INITIAL_PERMS, 1)
-
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.activity_fragment_container, MenuFragment.onInstance())
-            .commit()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("isBound", boundService)
+        if(savedInstanceState==null) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.activity_fragment_container, MenuFragment.onInstance())
+                .commit()
+        } else {
+            //continue playing the song
+        }
     }
 
     override fun onDestroy() {
@@ -69,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun playAudio(musicIndex: Int, audioList: ArrayList<Audio>) {
+    fun playAudio(musicIndex: Int, audioList: List<Audio>) {
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
             val storage = StorageUtils(applicationContext)

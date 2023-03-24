@@ -1,4 +1,4 @@
-package com.example.mediaplayer
+package com.example.mediaplayer.fragments
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -7,11 +7,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
 
-class CustomAdapterAudio(listener: Listener, private val type: Type): RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
+class CustomAdapterAudio(listener: Listener, private val type: TypeFragmentList): RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
     private var listener: Listener? = listener
-    private var listAudio = ArrayList<Audio>()
+    private var listAudio: List<Audio> = ArrayList()
 
     interface Listener{
         fun onItemClick(position: Int)
@@ -19,8 +20,8 @@ class CustomAdapterAudio(listener: Listener, private val type: Type): RecyclerVi
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemRes = when (type) {
-            Type.VERTICAL -> R.layout.item_vertical
-            Type.HORIZONTAL -> R.layout.item_horizontal
+            TypeFragmentList.VERTICAL -> R.layout.item_vertical
+            TypeFragmentList.HORIZONTAL -> R.layout.item_horizontal
         }
         return ViewHolder(LayoutInflater.from(parent.context).inflate(itemRes, parent, false))
     }
@@ -31,14 +32,14 @@ class CustomAdapterAudio(listener: Listener, private val type: Type): RecyclerVi
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         when (type) {
-            Type.HORIZONTAL -> {
+            TypeFragmentList.HORIZONTAL -> {
                 if(listAudio[position].image!=null) holder.imageH!!.setImageBitmap(listAudio[position].image)
                 holder.titleH!!.text = listAudio[position].title
                 holder.imageH!!.setOnClickListener {
                     listener?.onItemClick(position)
                 }
             }
-            Type.VERTICAL -> {
+            TypeFragmentList.VERTICAL -> {
                 holder.imageV?.setImageBitmap(listAudio[position].image)
                 holder.titleV!!.text = listAudio[position].title
                 holder.playV!!.setOnClickListener {
@@ -49,14 +50,9 @@ class CustomAdapterAudio(listener: Listener, private val type: Type): RecyclerVi
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setList(listAudio: ArrayList<Audio>){
+    fun setList(listAudio: List<Audio>){
         this.listAudio = listAudio
         notifyDataSetChanged()
-    }
-
-    enum class Type{
-        HORIZONTAL,
-        VERTICAL
     }
 
     class ViewHolder(view: View):RecyclerView.ViewHolder(view){

@@ -1,4 +1,4 @@
-package com.example.mediaplayer
+package com.example.mediaplayer.data
 
 import android.content.Context
 import com.example.mediaplayer.data.Audio
@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken
 class StorageUtils(private val context: Context) {
     private val STORAGE = "com.example.mediaplayer.STORAGE"
 
-    fun writeAudioList(audioList: ArrayList<Audio>){
+    fun writeAudioList(audioList: List<Audio>){
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val editor = preferences.edit()
         val gson = Gson()
@@ -17,7 +17,7 @@ class StorageUtils(private val context: Context) {
         editor.apply()
     }
 
-    fun readAudioList():ArrayList<Audio>{
+    fun readAudioList():List<Audio>{
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val gson = Gson()
         val json = preferences.getString("audioArrayList", null)
@@ -27,9 +27,9 @@ class StorageUtils(private val context: Context) {
 
     fun writeIndex(index: Int){
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
-        val editor = preferences.edit()
-        editor.putInt("index", index)
-        editor.apply()
+        preferences.edit()
+        .putInt("index", index)
+        .apply()
     }
 
     fun readIndex(): Int{
@@ -39,9 +39,9 @@ class StorageUtils(private val context: Context) {
 
     fun clearData(){
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
-        val editor = preferences.edit()
-        editor.clear()
-        editor.apply()
+        preferences.edit()
+            .clear()
+            .apply()
     }
 
 }

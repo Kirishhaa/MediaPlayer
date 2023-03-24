@@ -1,4 +1,4 @@
-package com.example.mediaplayer
+package com.example.mediaplayer.service
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.media.session.MediaSessionManager
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
+import com.example.mediaplayer.R
 import com.example.mediaplayer.data.PlaybackStatus
 
 class AudioSession(

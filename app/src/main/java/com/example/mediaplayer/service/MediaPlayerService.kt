@@ -1,4 +1,4 @@
-package com.example.mediaplayer
+package com.example.mediaplayer.service
 
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -10,6 +10,9 @@ import android.os.Binder
 import android.os.IBinder
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
+import android.util.Log
+import com.example.mediaplayer.MainActivity
+import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.data.PlaybackStatus
 
 class MediaPlayerService : Service(),

@@ -1,11 +1,12 @@
-package com.example.mediaplayer
+package com.example.mediaplayer.service
 
 import android.media.MediaPlayer
 import android.util.Log
 import com.example.mediaplayer.data.PlaybackStatus
 
 class AudioPlayerListener(private val notificationCreator: NotificationCreator,
-                          private val audioSession: AudioSession) : MediaPlayer.OnPreparedListener,
+                          private val audioSession: AudioSession
+) : MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     override fun onPrepared(mp: MediaPlayer?) {
