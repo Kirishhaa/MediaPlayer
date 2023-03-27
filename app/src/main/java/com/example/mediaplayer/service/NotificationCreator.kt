@@ -45,7 +45,7 @@ class NotificationCreator(private val context: Context) {
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle(audio.title)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setLargeIcon(audio.image)
+            .setLargeIcon(audio.imageArt)
             .setContentText("")
             .setAutoCancel(false)
             .setStyle(MediaStyle()
@@ -90,6 +90,7 @@ class NotificationCreator(private val context: Context) {
     }
 
     fun removeNotification(){
+        println(123)
         notificationManager.cancel(NOTIFICATION_ID)
     }
 }

@@ -34,6 +34,7 @@ class MediaPlayerService : Service(),
     companion object {
         const val ACTION_PLAY = "MEDIA_PLAYER_ACTION_PLAY"
         const val ACTION_PAUSE = "MEDIA_PLAYER_ACTION_PAUSE"
+        const val ACTION_RESUME = "MEDIA_PLAYER_ACTION_RESUME"
         const val ACTION_NEXT = "MEDIA_PLAYER_ACTION_NEXT"
         const val ACTION_PREVIOUS = "MEDIA_PLAYER_ACTION_PREVIOUS"
     }
@@ -44,12 +45,13 @@ class MediaPlayerService : Service(),
         callStateListener()
         registerPlayNewAudio()
         registerBecomingNoisyReceiver()
+        registerPauseReceiver()
+        registerResumeReceiver()
         notificationCreator = NotificationCreator(applicationContext)
         storage = StorageUtils(applicationContext)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         if (!requestAudioFocus()) stopSelf()
 
         if (audioSession == null) {
@@ -159,6 +161,41 @@ class MediaPlayerService : Service(),
     private fun registerBecomingNoisyReceiver() {
         val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         registerReceiver(becomingNoisyReceiver, intentFilter)
+    }
+
+    private val pauseReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            audioPlayer!!.pauseAudio()
+            audioSession!!.updateMetaData()
+            notificationCreator?.createNotification(
+                audioPlayer!!.currentAudio!!,
+                audioSession!!,
+                PlaybackStatus.PAUSED
+            )
+        }
+
+    }
+
+    private fun registerPauseReceiver(){
+        val intentFilter = IntentFilter(ACTION_PAUSE)
+        registerReceiver(pauseReceiver, intentFilter)
+    }
+
+    private val resumeReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            audioPlayer!!.resumeAudio()
+            audioSession!!.updateMetaData()
+            notificationCreator?.createNotification(
+                audioPlayer!!.currentAudio!!,
+                audioSession!!,
+                PlaybackStatus.PLAYING
+            )
+        }
+    }
+
+    private fun registerResumeReceiver(){
+        val intentFilter = IntentFilter(ACTION_RESUME)
+        registerReceiver(resumeReceiver, intentFilter)
     }
 
     private val playNewAudioReceiver = object : BroadcastReceiver() {

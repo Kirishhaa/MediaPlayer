@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.marks
 
 import com.example.mediaplayer.data.Audio
 

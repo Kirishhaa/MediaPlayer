@@ -5,18 +5,19 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
+import androidx.appcompat.app.AppCompatActivity
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.fragments.VerticalFragment
+import com.example.mediaplayer.fragments.marks.AudioController
 import com.example.mediaplayer.service.MediaPlayerService
 import com.example.mediaplayer.service.NotificationCreator
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AudioController {
     private lateinit var musicService: MediaPlayerService
     private var boundService = false
 
@@ -48,39 +49,46 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         requestPermissions(INITIAL_PERMS, 1)
-        if(savedInstanceState==null) {
+        if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.activity_fragment_container, MenuFragment.onInstance())
+                .replace(R.id.activity_fragment_container, MenuFragment())
                 .commit()
-        } else {
-            //continue playing the song
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        NotificationCreator(applicationContext).removeNotification()
         if (boundService) {
             unbindService(serviceConnection)
             musicService.stopSelf()
         }
-        NotificationCreator(applicationContext).removeNotification()
     }
 
 
-    fun playAudio(musicIndex: Int, audioList: List<Audio>) {
+    override fun onPlayAudio(position: Int, list: List<Audio>) {
+        val storage = StorageUtils(applicationContext)
+        storage.writeAudioList(list)
+        storage.writeIndex(position)
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
-            val storage = StorageUtils(applicationContext)
-            storage.writeAudioList(audioList)
-            storage.writeIndex(musicIndex)
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
             startService(intent)
         } else {
             val broadcastIntent = Intent(BROADCAST_PLAY_NEW_AUDIO)
-            StorageUtils(applicationContext).writeIndex(musicIndex)
             sendBroadcast(broadcastIntent)
         }
+    }
+
+    override fun onResumeAudio(){
+        val intent = Intent(MediaPlayerService.ACTION_RESUME)
+        sendBroadcast(intent)
+    }
+
+    override fun onPauseAudio(){
+        val intent = Intent(MediaPlayerService.ACTION_PAUSE)
+        sendBroadcast(intent)
     }
 
     override fun onBackPressed() {

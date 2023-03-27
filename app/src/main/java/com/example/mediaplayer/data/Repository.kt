@@ -6,17 +6,18 @@ import android.media.MediaMetadataRetriever
 import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import java.io.File
 
 class Repository{
-    private val mutableAudioList = mutableListOf<Audio>()
-    val audioList: List<Audio> = mutableAudioList
-
-
-    suspend fun loadData() {
-        withContext(Dispatchers.IO) {
+    fun loadData(): LiveData<List<Audio>> {
+        val liveData = MutableLiveData<List<Audio>>()
+        CoroutineScope(Dispatchers.IO).launch {
+            val mutableAudioList = mutableListOf<Audio>()
             val musicDirectory =
                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).path)
             val f = File(musicDirectory.toString())
@@ -42,9 +43,11 @@ class Repository{
                             it.absolutePath
                         )
                     )
+                    liveData.postValue(mutableAudioList)
                 }
             }
             mediaDataRetriever.release()
         }
+        return liveData
     }
 }

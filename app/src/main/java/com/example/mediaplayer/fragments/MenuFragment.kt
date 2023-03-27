@@ -1,29 +1,22 @@
 package com.example.mediaplayer.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.mediaplayer.fragments.marks.ListContainer
+import com.example.mediaplayer.fragments.marks.PositionCallbacker
 
-class MenuFragment : Fragment() {
-    private var audioList: List<Audio> = ArrayList()
+class MenuFragment : Fragment(), PositionCallbacker {
     private val viewModel: AudioViewModel by lazy { ViewModelProvider(this)[AudioViewModel::class.java] }
-
-    companion object {
-        fun onInstance(): MenuFragment {
-            return MenuFragment()
-        }
-    }
+    var audioList: List<Audio> = ArrayList()
+        private set
+    var currentPosition: Int = -1
+        private set
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,10 +29,12 @@ class MenuFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
             viewModel.audioList.observe(viewLifecycleOwner) {
-                audioList = it
-                childFragmentManager.fragments.forEach { fragment ->
-                    if (fragment is ListContainer) {
-                        fragment.setList(audioList)
+                if(it!=null) {
+                    audioList = it
+                    childFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is ListContainer) {
+                            fragment.setList(audioList)
+                        }
                     }
                 }
             }
@@ -50,5 +45,7 @@ class MenuFragment : Fragment() {
         }
     }
 
-    fun getList() = audioList
+    override fun callbackPosition(position: Int) {
+        this.currentPosition = position
+    }
 }

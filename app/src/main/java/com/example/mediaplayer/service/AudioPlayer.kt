@@ -3,15 +3,18 @@ package com.example.mediaplayer.service
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.data.Audio
+import kotlinx.coroutines.*
 
 class AudioPlayer(
-    private val context: Context,
-    private val audioList: List<Audio>,
+    context: Context,
+    private var audioList: List<Audio>,
 ) : MediaPlayer() {
     private val storage = StorageUtils(context)
-
     private var listener: AudioPlayerListener? = null
 
     var currentAudio: Audio? = null
@@ -42,7 +45,7 @@ class AudioPlayer(
         try {
             setDataSource(currentAudio!!.path)
         } catch (_: Exception) {
-            (context as MediaPlayerService).stopSelf()
+            Log.d("AudioPlayer", "dataSource for currentAudio isn't right")
         }
 
         prepareAsync()
@@ -60,7 +63,6 @@ class AudioPlayer(
         } else currentIndex++
         storage.writeIndex(currentIndex)
         currentAudio = audioList[currentIndex]
-
         stopAudio()
         reset()
         initialize()
@@ -72,7 +74,6 @@ class AudioPlayer(
         } else currentIndex--
         storage.writeIndex(currentIndex)
         currentAudio = audioList[currentIndex]
-
         stopAudio()
         reset()
         initialize()
@@ -92,18 +93,18 @@ class AudioPlayer(
 
     fun resumeAudio() {
         if (!isPlaying) {
-            seekTo(currentIndex)
             start()
         }
     }
 
     fun playNewAudio() {
         currentIndex = storage.readIndex()
-        if (currentIndex == -1 || currentIndex >= audioList.size) (context as MediaPlayerService).stopSelf()
-        else {
+        audioList = storage.readAudioList()
+        if (currentIndex == -1 || currentIndex >= audioList.size){
+          Log.d("AudioPlayer", "cuurent index == -1 or < than audioList.size")
+        } else {
             currentAudio = audioList[currentIndex]
         }
-
         stopAudio()
         reset()
         initialize()
