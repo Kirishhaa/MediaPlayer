@@ -13,7 +13,7 @@ import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.fragments.VerticalFragment
-import com.example.mediaplayer.fragments.marks.AudioController
+import com.example.mediaplayer.interfaces.AudioController
 import com.example.mediaplayer.service.MediaPlayerService
 import com.example.mediaplayer.service.NotificationCreator
 

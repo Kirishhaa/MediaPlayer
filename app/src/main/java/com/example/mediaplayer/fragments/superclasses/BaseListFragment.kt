@@ -1,23 +1,21 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.superclasses
 
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.fragments.marks.AdapterListener
-import com.example.mediaplayer.fragments.marks.AudioController
-import com.example.mediaplayer.fragments.marks.ListContainer
-import com.example.mediaplayer.fragments.marks.PositionCallbacker
+import com.example.mediaplayer.data.PlaybackStatus
+import com.example.mediaplayer.interfaces.AdapterListener
+import com.example.mediaplayer.interfaces.AudioController
+import com.example.mediaplayer.interfaces.ListContainer
+import com.example.mediaplayer.interfaces.Callback
 
-abstract class BaseFragment(private val resLayout: Int): Fragment(), AdapterListener, ListContainer {
-    protected var audioList: List<Audio> = ArrayList()
-    protected var currentPosition = -1
+abstract class BaseListFragment(private val resLayout: Int): BaseFragment(resLayout),
+    AdapterListener, ListContainer {
     private var audioController: AudioController? = null
-    private var positionCallbacker: PositionCallbacker? = null
-
+    private var callback: BaseFragment? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -29,13 +27,16 @@ abstract class BaseFragment(private val resLayout: Int): Fragment(), AdapterList
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        positionCallbacker = parentFragment as PositionCallbacker
+        callback = parentFragment as BaseFragment
+        this.audioList = callback!!.audioList
+        if(currentPosition==-1) this.currentPosition = callback!!.currentPosition
+        this.state = callback!!.state
         return inflater.inflate(resLayout, container, false)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        positionCallbacker = null
+        callback = null
     }
 
     override fun onDetach() {
@@ -55,8 +56,9 @@ abstract class BaseFragment(private val resLayout: Int): Fragment(), AdapterList
         audioController?.onResumeAudio()
     }
 
-    override fun callbackPosition(position: Int) {
+    override fun callbackItem(position: Int, state: PlaybackStatus) {
         this.currentPosition = position
-        positionCallbacker?.callbackPosition(position)
+        this.state = state
+        callback?.callbackItem(position, state)
     }
 }

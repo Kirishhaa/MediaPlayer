@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.fragments.marks.AdapterListener
+import com.example.mediaplayer.interfaces.AdapterListener
 
-class HorizontalAdapterAudio(private val listener: AdapterListener, currentPos: Int) :
+class HorizontalAdapterAudio(private val listener: AdapterListener, private var currentPosition: Int) :
     RecyclerView.Adapter<HorizontalAdapterAudio.ViewHolder>() {
     private var listAudio: List<Audio> = ArrayList()
-    private var currentPosition = currentPos
     private var state: PlaybackStatus = PlaybackStatus.PLAYING
 
 
@@ -34,23 +33,32 @@ class HorizontalAdapterAudio(private val listener: AdapterListener, currentPos: 
             holder.imageH!!.setImageBitmap(listAudio[position].imageArt)
         holder.titleH!!.text = listAudio[position].title
         holder.imageH!!.setOnClickListener {
-            if(currentPosition==position && state == PlaybackStatus.PLAYING) {
+            if (currentPosition == position && state == PlaybackStatus.PLAYING) {
                 listener.onPauseClicked()
                 state = PlaybackStatus.PAUSED
-            } else if(currentPosition==position && state == PlaybackStatus.PAUSED) {
+                listAudio[position].imagePlayRes = R.drawable.ic_play_arrow
+            } else if (currentPosition == position && state == PlaybackStatus.PAUSED) {
                 listener.onResumeClicked()
                 state = PlaybackStatus.PLAYING
+                listAudio[position].imagePlayRes = R.drawable.ic_pause
             } else {
                 listener.onPlayClicked(position, listAudio)
+                if(currentPosition!=-1){
+                    listAudio[currentPosition].imagePlayRes = R.drawable.ic_play_arrow
+                    notifyItemChanged(currentPosition)
+                } else currentPosition = holder.adapterPosition
+                listAudio[position].imagePlayRes = R.drawable.ic_pause
                 state = PlaybackStatus.PLAYING
             }
+            notifyItemChanged(position)
             currentPosition = holder.adapterPosition
-            listener.callbackPosition(position)
+            listener.callbackItem(position,state)
         }
     }
 
-    fun setCurrentPosition(pos: Int){
-        this.currentPosition = pos
+    fun setCurrentData(position: Int, state: PlaybackStatus) {
+        this.currentPosition = position
+        this.state = state
     }
 
     @SuppressLint("NotifyDataSetChanged")

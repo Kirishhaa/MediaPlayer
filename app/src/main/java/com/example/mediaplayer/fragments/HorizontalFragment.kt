@@ -1,22 +1,17 @@
 package com.example.mediaplayer.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mediaplayer.MainActivity
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.data.StorageUtils
-import com.example.mediaplayer.databinding.FragmentListHorizontalBinding
-import com.example.mediaplayer.fragments.marks.AdapterListener
-import com.example.mediaplayer.fragments.marks.ListContainer
+import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
-class HorizontalFragment : BaseFragment(R.layout.fragment_list_horizontal) {
+class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
     private lateinit var adapter: HorizontalAdapterAudio
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -29,10 +24,9 @@ class HorizontalFragment : BaseFragment(R.layout.fragment_list_horizontal) {
         }
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_music_list_horizontal)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
         adapter = HorizontalAdapterAudio(this, currentPosition)
-        adapter.setCurrentPosition(currentPosition)
         adapter.setList(audioList)
+        adapter.setCurrentData(currentPosition, state)
         recycler.adapter = adapter
         StorageUtils(requireContext()).writeAudioList(audioList)
     }

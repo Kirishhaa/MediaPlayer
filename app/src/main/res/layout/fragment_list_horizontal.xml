@@ -24,7 +24,7 @@
         android:padding="10dp"
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:text="see as list"
+        android:text="@string/see_as_list"
         android:layout_weight="1"
         android:gravity="end"/>
     </LinearLayout>
