@@ -4,17 +4,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Environment
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class Repository{
+class Repository {
     suspend fun loadData(): List<Audio> {
         val mutableAudioList = mutableListOf<Audio>()
         withContext(Dispatchers.IO) {
@@ -34,7 +31,7 @@ class Repository{
                     } else null
                     val duration =
                         mediaDataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-                            .toLong() / 1000
+                            .toLong()
                     mutableAudioList.add(
                         Audio(
                             image,

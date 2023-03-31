@@ -30,8 +30,7 @@ class AudioPlayerListener(private val notificationCreator: NotificationCreator,
 
     override fun onCompletion(mp: MediaPlayer?) {
         (mp as AudioPlayer).stopAudio()
-        mp.reset()
-        mp.playNextAudio()
+        audioSession.controller.transportControls.skipToNext()
         audioSession.updateMetaData()
         notificationCreator.createNotification(mp.currentAudio!!, audioSession, PlaybackStatus.PLAYING)
     }

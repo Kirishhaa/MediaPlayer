@@ -19,14 +19,15 @@ class AudioPlayer(
 
     var currentAudio: Audio? = null
         private set
-    private var currentIndex = -1
+    var currentIndex = -1
+        private set
 
     init{
         currentIndex = storage.readIndex()
 
         if (currentIndex != -1 && currentIndex < audioList.size) {
             currentAudio = audioList[currentIndex]
-        } else (context as MediaPlayerService).stopSelf()
+        }
     }
 
     fun setListener(listener: AudioPlayerListener){

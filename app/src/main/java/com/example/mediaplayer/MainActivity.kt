@@ -7,19 +7,24 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.media.session.MediaControllerCompat
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.fragments.VerticalFragment
 import com.example.mediaplayer.interfaces.AudioController
+import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.service.AudioSession
 import com.example.mediaplayer.service.MediaPlayerService
-import com.example.mediaplayer.service.NotificationCreator
 
-class MainActivity : AppCompatActivity(), AudioController {
+class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteraction {
     private lateinit var musicService: MediaPlayerService
     private var boundService = false
+    private var transportControls: MediaControllerCompat.TransportControls? = null
+    private var audioSession: AudioSession?= null
 
     companion object {
         @JvmStatic
@@ -28,7 +33,6 @@ class MainActivity : AppCompatActivity(), AudioController {
         @JvmStatic
         private val INITIAL_PERMS = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.MEDIA_CONTENT_CONTROL,
             Manifest.permission.READ_PHONE_STATE
         )
     }
@@ -36,7 +40,9 @@ class MainActivity : AppCompatActivity(), AudioController {
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerService.LocalBinder
-            musicService = binder.getService()
+            musicService = binder.getService(this@MainActivity)
+            audioSession = binder.session
+            transportControls = audioSession!!.controller.transportControls
             boundService = true
         }
 
@@ -47,6 +53,7 @@ class MainActivity : AppCompatActivity(), AudioController {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        boundService = savedInstanceState?.getBoolean("isBound") ?: false
         setContentView(R.layout.activity_main)
         requestPermissions(INITIAL_PERMS, 1)
         if (savedInstanceState == null) {
@@ -57,20 +64,14 @@ class MainActivity : AppCompatActivity(), AudioController {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        NotificationCreator(applicationContext).removeNotification()
-        if (boundService) {
-            unbindService(serviceConnection)
-            musicService.stopSelf()
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isBound", boundService)
     }
 
-
-    override fun onPlayAudio(position: Int, list: List<Audio>) {
+    override fun playAudio(songMetadata: SongMetadata) {
         val storage = StorageUtils(applicationContext)
-        storage.writeAudioList(list)
-        storage.writeIndex(position)
+        storage.writeIndex(songMetadata.currentPosition)
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -81,14 +82,14 @@ class MainActivity : AppCompatActivity(), AudioController {
         }
     }
 
-    override fun onResumeAudio(){
-        val intent = Intent(MediaPlayerService.ACTION_RESUME)
-        sendBroadcast(intent)
+    override fun resumeAudio(){
+        val broadcastIntent = Intent(MediaPlayerService.ACTION_RESUME)
+        sendBroadcast(broadcastIntent)
     }
 
-    override fun onPauseAudio(){
-        val intent = Intent(MediaPlayerService.ACTION_PAUSE)
-        sendBroadcast(intent)
+    override fun pauseAudio() {
+        val broadcastIntent = Intent(MediaPlayerService.ACTION_PAUSE)
+        sendBroadcast(broadcastIntent)
     }
 
     override fun onBackPressed() {
@@ -104,5 +105,11 @@ class MainActivity : AppCompatActivity(), AudioController {
             }
         }
         super.onBackPressed()
+    }
+
+    override fun getCallback(songMetadata: SongMetadata) {
+        supportFragmentManager.fragments.getOrNull(0)?.let {
+            (it as MenuFragment).updateMetaData(songMetadata)
+        }
     }
 }

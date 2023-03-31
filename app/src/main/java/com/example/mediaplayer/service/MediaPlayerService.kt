@@ -14,6 +14,7 @@ import android.util.Log
 import com.example.mediaplayer.MainActivity
 import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.data.PlaybackStatus
+import com.example.mediaplayer.interfaces.AudioSessionInteraction
 
 class MediaPlayerService : Service(),
     AudioManager.OnAudioFocusChangeListener {
@@ -25,7 +26,7 @@ class MediaPlayerService : Service(),
     private var phoneStateListener: PhoneStateListener? = null
     private var telephonyManager: TelephonyManager? = null
 
-    private var audioSession: AudioSession? = null
+    private lateinit var audioSession: AudioSession
 
     private var notificationCreator: NotificationCreator? = null
 
@@ -47,6 +48,7 @@ class MediaPlayerService : Service(),
         registerBecomingNoisyReceiver()
         registerPauseReceiver()
         registerResumeReceiver()
+        audioSession  = AudioSession(applicationContext, "AudioSession")
         notificationCreator = NotificationCreator(applicationContext)
         storage = StorageUtils(applicationContext)
     }
@@ -54,10 +56,10 @@ class MediaPlayerService : Service(),
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (!requestAudioFocus()) stopSelf()
 
-        if (audioSession == null) {
+        if (!audioSession.isActive) {
             audioPlayer = AudioPlayer(applicationContext, storage.readAudioList())
             initMediaSession()
-            audioPlayerListener = AudioPlayerListener(notificationCreator!!, audioSession!!)
+            audioPlayerListener = AudioPlayerListener(notificationCreator!!, audioSession)
             initMediaPlayer()
             notificationCreator?.createNotification(
                 audioPlayer!!.currentAudio!!,
@@ -65,7 +67,7 @@ class MediaPlayerService : Service(),
                 PlaybackStatus.PLAYING
             )
         }
-        audioSession!!.handlePlaybackUserInteraction(intent)
+        audioSession.handlePlaybackUserInteraction(intent)
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -74,13 +76,16 @@ class MediaPlayerService : Service(),
     }
 
     inner class LocalBinder : Binder() {
-        fun getService(): MediaPlayerService {
+        lateinit var session: AudioSession
+        fun getService(obj: AudioSessionInteraction): MediaPlayerService {
+            audioSession.setCallback(obj)
+            session = audioSession
             return this@MediaPlayerService
         }
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        audioSession?.release()
+        audioSession.release()
         notificationCreator?.removeNotification()
         return super.onUnbind(intent)
     }
@@ -201,10 +206,10 @@ class MediaPlayerService : Service(),
     private val playNewAudioReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             audioPlayer!!.playNewAudio()
-            audioSession!!.updateMetaData()
+            audioSession.updateMetaData()
             notificationCreator?.createNotification(
                 audioPlayer!!.currentAudio!!,
-                audioSession!!,
+                audioSession,
                 PlaybackStatus.PLAYING
             )
         }
@@ -242,10 +247,9 @@ class MediaPlayerService : Service(),
     }
 
     private fun initMediaSession() {
-        if (audioSession != null) return
-        audioSession =
-            AudioSession(applicationContext, "AudioSession", audioPlayer, notificationCreator!!)
-        audioSession!!.initialize()
+        if (audioSession.isActive) return
+        audioSession.setAudioPlayer(audioPlayer!!)
+        audioSession.initialize()
     }
 
 }

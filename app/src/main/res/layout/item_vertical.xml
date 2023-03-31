@@ -10,21 +10,21 @@
         android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/image_item_vertical"
+        android:id="@+id/art_image_item"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_margin="10dp"
         android:src="@drawable/cardview_shape"/>
 
     <TextView
-        android:id="@+id/text_item_vertical"
+        android:id="@+id/title_item"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="center"/>
 
     <ImageView
-        android:id="@+id/image_item_play"
+        android:id="@+id/play_image_item"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_margin="10dp"

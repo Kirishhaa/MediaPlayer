@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
@@ -90,6 +91,7 @@ class NotificationCreator(private val context: Context) {
     }
 
     fun removeNotification(){
+        Log.d("NOTIFICATORNAYA", "WAS REMOVED")
         notificationManager.cancel(NOTIFICATION_ID)
     }
 }

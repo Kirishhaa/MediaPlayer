@@ -9,13 +9,7 @@ import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.interfaces.Callback
 
-abstract class BaseFragment(private val resLayout: Int): Fragment(), Callback {
-    var audioList: List<Audio> = emptyList()
-    protected set
-    var currentPosition = -1
-    protected set
-    var state = PlaybackStatus.PAUSED
-    protected set
+abstract class BaseFragment(private val resLayout: Int): Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

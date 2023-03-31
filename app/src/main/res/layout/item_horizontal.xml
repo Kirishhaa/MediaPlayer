@@ -6,7 +6,7 @@
     android:layout_margin="5dp">
 
     <ImageView
-        android:id="@+id/image_item_horizontal"
+        android:id="@+id/art_image_item"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:scaleType="fitXY"
@@ -14,11 +14,19 @@
         android:background="@drawable/cardview_shape"/>
 
     <TextView
-        android:id="@+id/text_item_horizontal"
+        android:id="@+id/title_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:text="Kizaru - не еблань"
+        tools:text="nazvanie songa"
         android:layout_gravity="center"
         android:gravity="center"/>
+
+    <ImageView
+        android:id="@+id/play_image_item"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_play_arrow" />
 
 </androidx.cardview.widget.CardView>

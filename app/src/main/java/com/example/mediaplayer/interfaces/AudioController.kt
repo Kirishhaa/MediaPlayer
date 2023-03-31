@@ -1,9 +1,9 @@
 package com.example.mediaplayer.interfaces
 
-import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.SongMetadata
 
 interface AudioController {
-    fun onPlayAudio(position: Int, list: List<Audio>)
-    fun onResumeAudio()
-    fun onPauseAudio()
+    fun playAudio(songMetadata: SongMetadata)
+    fun resumeAudio()
+    fun pauseAudio()
 }

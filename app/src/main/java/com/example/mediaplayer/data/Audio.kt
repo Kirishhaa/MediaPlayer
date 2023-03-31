@@ -1,6 +1,8 @@
 package com.example.mediaplayer.data
 
 import android.graphics.Bitmap
+import android.os.Parcel
+import android.os.Parcelable
 import com.example.mediaplayer.R
 
 data class Audio(
@@ -9,4 +11,4 @@ data class Audio(
     val duration: Long,
     val path: String,
     var imagePlayRes: Int = R.drawable.ic_play_arrow,
-) : java.io.Serializable
+)
