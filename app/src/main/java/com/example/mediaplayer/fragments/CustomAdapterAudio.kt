@@ -1,6 +1,7 @@
 package com.example.mediaplayer.fragments
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +12,12 @@ import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.data.SongMetadata
-import com.example.mediaplayer.interfaces.AdapterListener
+import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
-class CustomAdapterAudio(private val listener: AdapterListener, private val type: TypeListFragment) :
+class CustomAdapterAudio(
+    private val listener: BaseListFragment,
+    private val type: TypeListFragment,
+) :
     RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
 
     private var songMetadata: SongMetadata = SongMetadata()
@@ -32,14 +36,14 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.artImage?.setImageBitmap(audioList[position].imageArt)
-        holder.title?.text = audioList[position].title
-        holder.playImage?.setOnClickListener {
-            if(songMetadata.currentPosition == -1){
+        holder.artImage.setImageBitmap(audioList[position].imageArt)
+        holder.title.text = audioList[position].title
+        holder.playImage.setOnClickListener {
+            if (songMetadata.currentPosition == -1) {
                 playAudio(position)
             } else {
-                if(songMetadata.currentPosition == position){
-                    if(songMetadata.state == PlaybackStatus.PLAYING){
+                if (songMetadata.currentPosition == position) {
+                    if (songMetadata.state == PlaybackStatus.PLAYING) {
                         pauseAudio()
                     } else {
                         resumeAudio()
@@ -49,11 +53,15 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
                 }
             }
         }
-        holder.playImage?.setImageResource(audioList[position].imagePlayRes)
+        if (songMetadata.state == PlaybackStatus.PAUSED) {
+            holder.playImage.setImageResource(R.drawable.ic_play_arrow)
+        } else {
+            holder.playImage.setImageResource(audioList[position].imagePlayRes)
+        }
     }
 
     private fun playAudio(position: Int) {
-        if(songMetadata.currentPosition!=-1){
+        if (songMetadata.currentPosition != -1) {
             audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_play_arrow
             notifyItemChanged(songMetadata.currentPosition)
         }
@@ -64,7 +72,7 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
         listener.onPlayClicked(songMetadata)
     }
 
-    private fun pauseAudio(){
+    private fun pauseAudio() {
         songMetadata = SongMetadata(songMetadata.currentPosition, PlaybackStatus.PAUSED)
         audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_play_arrow
         notifyItemChanged(songMetadata.currentPosition)
@@ -72,7 +80,7 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
         listener.onPauseClicked(songMetadata)
     }
 
-    private fun resumeAudio(){
+    private fun resumeAudio() {
         songMetadata = SongMetadata(songMetadata.currentPosition, PlaybackStatus.PLAYING)
         audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
         notifyItemChanged(songMetadata.currentPosition)
@@ -80,8 +88,8 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
         listener.onResumeClicked(songMetadata)
     }
 
-    fun setSongMetadata(songMetadata: SongMetadata){
-        if(songMetadata.currentPosition!=-1) {
+    fun setSongMetadata(songMetadata: SongMetadata) {
+        if (songMetadata.currentPosition != -1) {
             if (songMetadata.currentPosition == this.songMetadata.currentPosition) {
                 if (songMetadata.state == PlaybackStatus.PLAYING) {
                     audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
@@ -91,7 +99,7 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
                     notifyItemChanged(songMetadata.currentPosition)
                 }
             } else {
-                if(this.songMetadata.currentPosition!=-1) {
+                if (this.songMetadata.currentPosition != -1) {
                     audioList[this.songMetadata.currentPosition].imagePlayRes =
                         R.drawable.ic_play_arrow
                     notifyItemChanged(this.songMetadata.currentPosition)
@@ -104,19 +112,19 @@ class CustomAdapterAudio(private val listener: AdapterListener, private val type
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setAudioList(audioList: List<Audio>){
+    fun setAudioList(audioList: List<Audio>) {
         this.audioList = audioList
         notifyDataSetChanged()
     }
 
-    enum class TypeListFragment{
+    enum class TypeListFragment {
         HORIZONTAL,
         VERTICAL
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val artImage: ImageView? = view.findViewById(R.id.art_image_item)
-        val title: TextView? = view.findViewById(R.id.title_item)
-        val playImage: ImageView? = view.findViewById(R.id.play_image_item)
+        val artImage: ImageView = view.findViewById(R.id.art_image_item)
+        val title: TextView = view.findViewById(R.id.title_item)
+        val playImage: ImageView = view.findViewById(R.id.play_image_item)
     }
 }

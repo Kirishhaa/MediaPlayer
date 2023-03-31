@@ -11,24 +11,28 @@ import com.example.mediaplayer.data.SongMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AudioViewModel: ViewModel() {
+class AudioViewModel : ViewModel() {
     private val repo: Repository = Repository()
     private var mutableMetaData = MutableLiveData<SongMetadata>()
     val metaData: LiveData<SongMetadata> = mutableMetaData
     private var mutableAudioList = MutableLiveData<List<Audio>>()
     val audioList: LiveData<List<Audio>> = mutableAudioList
 
-    init{
-        if(mutableMetaData.value == null){
+    init {
+        if (mutableMetaData.value == null) {
             loadData()
         }
     }
 
-    fun updateSongMetadata(metaData: SongMetadata){
+    fun updateSongMetadata(metaData: SongMetadata) {
         mutableMetaData.value = metaData
     }
 
-    private fun loadData(){
+    fun updateAudioList(audioList: List<Audio>) {
+        mutableAudioList.value = audioList
+    }
+
+    private fun loadData() {
         viewModelScope.launch(Dispatchers.IO) {
             mutableMetaData.postValue(SongMetadata())
             mutableAudioList.postValue(repo.loadData())

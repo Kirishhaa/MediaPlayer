@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.SongMetadata
-import com.example.mediaplayer.data.StorageUtils
+import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.fragments.superclasses.BaseFragment
 import com.example.mediaplayer.interfaces.ListContainer
 
@@ -37,7 +37,7 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu) {
             childFragmentManager.fragments.forEach { fragment ->
                 if (fragment is ListContainer) fragment.setList(audioList)
             }
-            StorageUtils(requireContext()).writeAudioList(audioList)
+            Storage(requireContext()).writeAudioList(audioList)
         }
     }
 
@@ -51,5 +51,9 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu) {
 
     fun updateMetaData(songMetadata: SongMetadata) {
         viewModel.updateSongMetadata(SongMetadata(songMetadata))
+    }
+
+    fun updateAudioList(audioList: List<Audio>) {
+        viewModel.updateAudioList(audioList)
     }
 }

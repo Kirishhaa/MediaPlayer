@@ -9,12 +9,12 @@ import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.interfaces.Callback
 
-abstract class BaseFragment(private val resLayout: Int): Fragment() {
+abstract class BaseFragment(private val resLayout: Int) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(resLayout, container, false)
     }

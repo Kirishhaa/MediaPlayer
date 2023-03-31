@@ -9,7 +9,7 @@ import com.example.mediaplayer.interfaces.AdapterListener
 import com.example.mediaplayer.interfaces.AudioController
 import com.example.mediaplayer.interfaces.ListContainer
 
-abstract class BaseListFragment(resLayout: Int): BaseFragment(resLayout),
+abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
     AdapterListener, ListContainer {
     private var audioController: AudioController? = null
     private var callback: MenuFragment? = null
@@ -28,19 +28,19 @@ abstract class BaseListFragment(resLayout: Int): BaseFragment(resLayout),
     override fun onDetach() {
         super.onDetach()
         callback = null
-        audioController=null
+        audioController = null
     }
 
-    override fun onPlayClicked(songMetadata: SongMetadata){
+    override fun onPlayClicked(songMetadata: SongMetadata) {
         audioController?.playAudio(songMetadata)
     }
 
-    override fun onPauseClicked(songMetadata: SongMetadata){
+    override fun onPauseClicked(songMetadata: SongMetadata) {
         audioController?.pauseAudio()
         callbackMetadata(songMetadata)
     }
 
-    override fun onResumeClicked(songMetadata: SongMetadata){
+    override fun onResumeClicked(songMetadata: SongMetadata) {
         audioController?.resumeAudio()
         callbackMetadata(songMetadata)
     }
@@ -49,11 +49,15 @@ abstract class BaseListFragment(resLayout: Int): BaseFragment(resLayout),
         callback?.updateMetaData(songMetadata)
     }
 
-    override fun setSongsMetadata(songMetadata: SongMetadata){
+    override fun setSongsMetadata(songMetadata: SongMetadata) {
         adapter.setSongMetadata(songMetadata)
     }
 
     override fun setList(audioList: List<Audio>) {
         adapter.setAudioList(audioList)
+    }
+
+    fun callbackAudioList(audioList: List<Audio>) {
+        callback?.updateAudioList(audioList)
     }
 }

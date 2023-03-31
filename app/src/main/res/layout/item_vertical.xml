@@ -14,7 +14,9 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_margin="10dp"
-        android:src="@drawable/cardview_shape"/>
+        android:scaleType="fitXY"
+        android:src="@drawable/cardview_shape"
+        android:background="@drawable/cardview_shape"/>
 
     <TextView
         android:id="@+id/title_item"

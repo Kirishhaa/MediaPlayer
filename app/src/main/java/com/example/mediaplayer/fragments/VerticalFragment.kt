@@ -5,13 +5,10 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.data.SongMetadata
-import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
-class VerticalFragment: BaseListFragment(R.layout.fragment_list_vertical) {
+class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

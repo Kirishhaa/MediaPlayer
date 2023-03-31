@@ -91,7 +91,6 @@ class NotificationCreator(private val context: Context) {
     }
 
     fun removeNotification(){
-        Log.d("NOTIFICATORNAYA", "WAS REMOVED")
         notificationManager.cancel(NOTIFICATION_ID)
     }
 }

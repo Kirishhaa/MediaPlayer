@@ -10,9 +10,8 @@ import android.os.Binder
 import android.os.IBinder
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
-import android.util.Log
 import com.example.mediaplayer.MainActivity
-import com.example.mediaplayer.data.StorageUtils
+import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.interfaces.AudioSessionInteraction
 
@@ -30,7 +29,7 @@ class MediaPlayerService : Service(),
 
     private var notificationCreator: NotificationCreator? = null
 
-    private lateinit var storage: StorageUtils
+    private lateinit var storage: Storage
 
     companion object {
         const val ACTION_PLAY = "MEDIA_PLAYER_ACTION_PLAY"
@@ -50,7 +49,7 @@ class MediaPlayerService : Service(),
         registerResumeReceiver()
         audioSession  = AudioSession(applicationContext, "AudioSession")
         notificationCreator = NotificationCreator(applicationContext)
-        storage = StorageUtils(applicationContext)
+        storage = Storage(applicationContext)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -157,7 +156,7 @@ class MediaPlayerService : Service(),
             audioPlayer!!.pauseAudio()
             notificationCreator?.createNotification(
                 audioPlayer!!.currentAudio!!,
-                audioSession!!,
+                audioSession,
                 PlaybackStatus.PAUSED
             )
         }
@@ -171,14 +170,13 @@ class MediaPlayerService : Service(),
     private val pauseReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             audioPlayer!!.pauseAudio()
-            audioSession!!.updateMetaData()
+            audioSession.updateMetaData()
             notificationCreator?.createNotification(
                 audioPlayer!!.currentAudio!!,
-                audioSession!!,
+                audioSession,
                 PlaybackStatus.PAUSED
             )
         }
-
     }
 
     private fun registerPauseReceiver(){
@@ -189,10 +187,10 @@ class MediaPlayerService : Service(),
     private val resumeReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             audioPlayer!!.resumeAudio()
-            audioSession!!.updateMetaData()
+            audioSession.updateMetaData()
             notificationCreator?.createNotification(
                 audioPlayer!!.currentAudio!!,
-                audioSession!!,
+                audioSession,
                 PlaybackStatus.PLAYING
             )
         }

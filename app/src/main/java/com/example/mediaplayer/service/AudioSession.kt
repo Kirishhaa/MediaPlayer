@@ -11,12 +11,11 @@ import android.support.v4.media.session.MediaSessionCompat
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.data.StorageUtils
 import com.example.mediaplayer.interfaces.AudioSessionInteraction
 
 class AudioSession(
     private val context: Context,
-    tag: String
+    tag: String,
 ) : MediaSessionCompat(context, tag) {
 
     private val notificationCreator = NotificationCreator(context)
@@ -26,11 +25,11 @@ class AudioSession(
     private var transportControls: MediaControllerCompat.TransportControls? = null
     private var obj: AudioSessionInteraction? = null
 
-    fun setAudioPlayer(audioPlayer: AudioPlayer){
+    fun setAudioPlayer(audioPlayer: AudioPlayer) {
         this.audioPlayer = audioPlayer
     }
 
-    fun setCallback(obj: AudioSessionInteraction){
+    fun setCallback(obj: AudioSessionInteraction) {
         this.obj = obj
     }
 
@@ -103,7 +102,7 @@ class AudioSession(
         this.setMetadata(
             MediaMetadataCompat.Builder()
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap)
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, audioPlayer!!.currentAudio!!.duration.toLong())
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, audioPlayer!!.currentAudio!!.duration)
                 .putString(MediaMetadata.METADATA_KEY_TITLE, audioPlayer?.currentAudio!!.title)
                 .build()
         )

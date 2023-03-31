@@ -7,24 +7,19 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.media.session.MediaControllerCompat
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediaplayer.data.SongMetadata
-import com.example.mediaplayer.data.StorageUtils
+import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.fragments.VerticalFragment
 import com.example.mediaplayer.interfaces.AudioController
 import com.example.mediaplayer.interfaces.AudioSessionInteraction
-import com.example.mediaplayer.service.AudioSession
 import com.example.mediaplayer.service.MediaPlayerService
 
 class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteraction {
     private lateinit var musicService: MediaPlayerService
     private var boundService = false
-    private var transportControls: MediaControllerCompat.TransportControls? = null
-    private var audioSession: AudioSession?= null
 
     companion object {
         @JvmStatic
@@ -41,8 +36,6 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerService.LocalBinder
             musicService = binder.getService(this@MainActivity)
-            audioSession = binder.session
-            transportControls = audioSession!!.controller.transportControls
             boundService = true
         }
 
@@ -70,7 +63,7 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
     }
 
     override fun playAudio(songMetadata: SongMetadata) {
-        val storage = StorageUtils(applicationContext)
+        val storage = Storage(applicationContext)
         storage.writeIndex(songMetadata.currentPosition)
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
@@ -82,7 +75,7 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         }
     }
 
-    override fun resumeAudio(){
+    override fun resumeAudio() {
         val broadcastIntent = Intent(MediaPlayerService.ACTION_RESUME)
         sendBroadcast(broadcastIntent)
     }

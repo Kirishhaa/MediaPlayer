@@ -4,8 +4,9 @@ import android.media.MediaPlayer
 import android.util.Log
 import com.example.mediaplayer.data.PlaybackStatus
 
-class AudioPlayerListener(private val notificationCreator: NotificationCreator,
-                          private val audioSession: AudioSession
+class AudioPlayerListener(
+    private val notificationCreator: NotificationCreator,
+    private val audioSession: AudioSession,
 ) : MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
@@ -14,7 +15,7 @@ class AudioPlayerListener(private val notificationCreator: NotificationCreator,
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        when(what){
+        when (what) {
             MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK -> {
                 Log.d("SERVICE", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK")
             }
@@ -32,6 +33,10 @@ class AudioPlayerListener(private val notificationCreator: NotificationCreator,
         (mp as AudioPlayer).stopAudio()
         audioSession.controller.transportControls.skipToNext()
         audioSession.updateMetaData()
-        notificationCreator.createNotification(mp.currentAudio!!, audioSession, PlaybackStatus.PLAYING)
+        notificationCreator.createNotification(
+            mp.currentAudio!!,
+            audioSession,
+            PlaybackStatus.PLAYING
+        )
     }
 }

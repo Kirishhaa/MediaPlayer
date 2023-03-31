@@ -3,18 +3,15 @@ package com.example.mediaplayer.service
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import com.example.mediaplayer.data.StorageUtils
+import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.data.Audio
-import kotlinx.coroutines.*
 
 class AudioPlayer(
     context: Context,
     private var audioList: List<Audio>,
 ) : MediaPlayer() {
-    private val storage = StorageUtils(context)
+    private val storage = Storage(context)
     private var listener: AudioPlayerListener? = null
 
     var currentAudio: Audio? = null
@@ -22,7 +19,7 @@ class AudioPlayer(
     var currentIndex = -1
         private set
 
-    init{
+    init {
         currentIndex = storage.readIndex()
 
         if (currentIndex != -1 && currentIndex < audioList.size) {
@@ -30,7 +27,7 @@ class AudioPlayer(
         }
     }
 
-    fun setListener(listener: AudioPlayerListener){
+    fun setListener(listener: AudioPlayerListener) {
         this.listener = listener
     }
 
@@ -101,8 +98,8 @@ class AudioPlayer(
     fun playNewAudio() {
         currentIndex = storage.readIndex()
         audioList = storage.readAudioList()
-        if (currentIndex == -1 || currentIndex >= audioList.size){
-          Log.d("AudioPlayer", "cuurent index == -1 or < than audioList.size")
+        if (currentIndex == -1 || currentIndex >= audioList.size) {
+            Log.d("AudioPlayer", "cuurent index == -1 or < than audioList.size")
         } else {
             currentAudio = audioList[currentIndex]
         }
