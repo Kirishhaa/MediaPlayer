@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         )
     }
 
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerService.LocalBinder
