@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MediaPlayer</string>
-    <string name="see_as_list">see as list</string>
+    <string name="see_as_list">See as List</string>
+    <string name="your_musics">Your musics</string>
 </resources>

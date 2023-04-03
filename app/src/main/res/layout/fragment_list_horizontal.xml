@@ -17,7 +17,10 @@
         android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:text="categoty"/>
+        android:text="@string/your_musics"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/black"/>
 
     <TextView
         android:id="@+id/tv_see_as_list"
@@ -26,7 +29,10 @@
         android:layout_width="0dp"
         android:text="@string/see_as_list"
         android:layout_weight="1"
-        android:gravity="end"/>
+        android:gravity="end"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/black"/>
     </LinearLayout>
 
 

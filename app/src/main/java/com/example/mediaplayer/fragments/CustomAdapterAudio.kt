@@ -36,7 +36,11 @@ class CustomAdapterAudio(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.artImage.setImageBitmap(audioList[position].imageArt)
+        if(audioList[position].imageArt!=null) {
+            holder.artImage.setImageBitmap(audioList[position].imageArt)
+        } else {
+            holder.artImage.setImageResource(R.drawable.ic_empty_music_card)
+        }
         holder.title.text = audioList[position].title
         holder.playImage.setOnClickListener {
             if (songMetadata.currentPosition == -1) {
