@@ -10,13 +10,26 @@ import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
+    companion object{
+        fun onInstance(isFavorite: Boolean): VerticalFragment{
+            val verticalFragment = VerticalFragment()
+            verticalFragment.isFavorite = isFavorite
+            return verticalFragment
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_vertical)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.VERTICAL)
-        adapter.setAudioList(audioList)
-        adapter.setSongMetadata(audioMetaData ?: SongMetadata())
+        adapter?.setAudioList(audioList)
+        adapter?.setSongMetadata(songMetaData)
         recycler.adapter = adapter
+    }
+
+    override fun onBackPressed(): Boolean {
+        navigate(HorizontalFragment())
+        return true
     }
 }

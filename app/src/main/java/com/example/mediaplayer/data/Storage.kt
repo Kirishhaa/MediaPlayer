@@ -6,22 +6,40 @@ import com.google.gson.reflect.TypeToken
 
 class Storage(private val context: Context) {
     private val STORAGE = "com.example.mediaplayer.STORAGE"
+    private val ALL_AUDIO_LIST = "all_audio_list"
+    private val FAVORITE_AUDIO_LIST = "favorite_audio_list"
 
-    fun writeAudioList(audioList: List<Audio>) {
+    fun writeAllAudioList(audioList: List<Audio>) {
+        writeAudioList(audioList, ALL_AUDIO_LIST)
+    }
+
+    fun writeFavoriteAudioList(audioList: List<Audio>) {
+        writeAudioList(audioList, FAVORITE_AUDIO_LIST)
+    }
+
+    private fun writeAudioList(audioList: List<Audio>, namePref: String){
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val editor = preferences.edit()
         val gson = Gson()
         val jsonList = gson.toJson(audioList)
-        editor.putString("audioArrayList", jsonList)
+        editor.putString(namePref, jsonList)
         editor.apply()
     }
 
-    fun readAudioList(): List<Audio> {
+    fun readAllAudioList(): List<Audio> {
+        return readAudioList(ALL_AUDIO_LIST)
+    }
+
+    fun readFavoriteAudioList() : List<Audio> {
+        return readAudioList(FAVORITE_AUDIO_LIST)
+    }
+
+    private fun readAudioList(namePref: String): List<Audio> {
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val gson = Gson()
-        val json = preferences.getString("audioArrayList", null)
+        val json = preferences.getString(namePref, null)
         val type = object : TypeToken<ArrayList<Audio>>() {}.type
-        return gson.fromJson(json, type)
+        return if(json!=null) gson.fromJson(json, type) else emptyList()
     }
 
     fun writeIndex(index: Int) {
@@ -36,11 +54,22 @@ class Storage(private val context: Context) {
         return preferences.getInt("index", -1)
     }
 
+    fun writeFavorite(isFavorite: Boolean) {
+        val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences.edit()
+            .putBoolean("isFavorite", isFavorite)
+            .apply()
+    }
+
+    fun readFavorite(): Boolean {
+        val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        return preferences.getBoolean("isFavorite", false)
+    }
+
     fun clearData() {
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences.edit()
             .clear()
             .apply()
     }
-
 }

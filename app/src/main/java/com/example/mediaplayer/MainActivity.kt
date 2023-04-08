@@ -8,13 +8,13 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
+import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.data.Storage
-import com.example.mediaplayer.fragments.HorizontalFragment
 import com.example.mediaplayer.fragments.MenuFragment
-import com.example.mediaplayer.fragments.VerticalFragment
 import com.example.mediaplayer.interfaces.AudioController
 import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.FragmentBackPressed
 import com.example.mediaplayer.service.MediaPlayerService
 
 class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteraction {
@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
             Manifest.permission.READ_PHONE_STATE
         )
     }
-
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -63,9 +62,11 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         outState.putBoolean("isBound", boundService)
     }
 
-    override fun playAudio(songMetadata: SongMetadata) {
+    override fun playAudio(songMetadata: SongMetadata, audioList: List<Audio>, isFavorite: Boolean) {
         val storage = Storage(applicationContext)
         storage.writeIndex(songMetadata.currentPosition)
+        storage.writeFavorite(isFavorite)
+        if(isFavorite) storage.writeFavoriteAudioList(audioList) else storage.writeAllAudioList(audioList)
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -86,24 +87,29 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         sendBroadcast(broadcastIntent)
     }
 
+    override fun stopAudio() {
+        val broadcastIntent = Intent(MediaPlayerService.ACTION_STOP)
+        sendBroadcast(broadcastIntent)
+    }
+
+    override fun nextAudio() {
+        val broadcastIntent = Intent(MediaPlayerService.ACTION_NEXT)
+        sendBroadcast(broadcastIntent)
+    }
+
     override fun onBackPressed() {
-        val currentFragment = supportFragmentManager.fragments.getOrNull(0)
-        if (currentFragment is MenuFragment) {
-            currentFragment.childFragmentManager.fragments.forEach {
-                if (it is VerticalFragment) {
-                    currentFragment.childFragmentManager.beginTransaction()
-                        .replace(R.id.menu_fragment_container, HorizontalFragment())
-                        .commit()
-                    return
+        supportFragmentManager.fragments.getOrNull(0)?.apply {
+            childFragmentManager.fragments.forEach {
+                if(it is FragmentBackPressed){
+                    if(!it.onBackPressed()) super.onBackPressed()
                 }
             }
         }
-        super.onBackPressed()
     }
 
     override fun getCallback(songMetadata: SongMetadata) {
         supportFragmentManager.fragments.getOrNull(0)?.let {
-            (it as MenuFragment).updateMetaData(songMetadata)
+            (it as MenuFragment).updateAllListMetaData(songMetadata)
         }
     }
 }

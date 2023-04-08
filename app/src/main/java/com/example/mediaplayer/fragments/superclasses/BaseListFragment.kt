@@ -1,63 +1,109 @@
 package com.example.mediaplayer.fragments.superclasses
 
 import android.content.Context
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.fragments.CustomAdapterAudio
 import com.example.mediaplayer.fragments.MenuFragment
-import com.example.mediaplayer.interfaces.AdapterListener
-import com.example.mediaplayer.interfaces.AudioController
-import com.example.mediaplayer.interfaces.ListContainer
+import com.example.mediaplayer.interfaces.*
 
 abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
-    AdapterListener, ListContainer {
+    AdapterListener, AllListContainer, FragmentNavigator, FragmentBackPressed {
     private var audioController: AudioController? = null
-    private var callback: MenuFragment? = null
-    protected var audioMetaData: SongMetadata? = null
+    private var menuFragment: MenuFragment? = null
+    protected var songMetaData: SongMetadata = SongMetadata()
     protected var audioList: List<Audio> = emptyList()
-    protected lateinit var adapter: CustomAdapterAudio
+    protected var adapter: CustomAdapterAudio? = null
+    open var isFavorite = false
+    protected set
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         audioController = context as AudioController
-        callback = parentFragment as MenuFragment
-        audioMetaData = callback?.getAudioMetaData()
-        audioList = callback?.getAudioList() ?: emptyList()
+        menuFragment = parentFragment as MenuFragment
     }
 
     override fun onDetach() {
         super.onDetach()
-        callback = null
+        menuFragment = null
         audioController = null
     }
 
-    override fun onPlayClicked(songMetadata: SongMetadata) {
-        audioController?.playAudio(songMetadata)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
+        val meta = menuFragment?.getListMetaData()
+        if(meta!=null) {
+            if((isFavorite && meta.isFavorite) || (!isFavorite && !meta.isFavorite)) {
+                songMetaData = meta
+            }
+        } else {
+            songMetaData = SongMetadata()
+        }
+        audioList = if(isFavorite) {
+            menuFragment?.getFavoriteList()?.toList() ?: emptyList()
+        } else {
+            menuFragment?.getAudioList() ?: emptyList()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isFavorite", isFavorite)
+    }
+
+    override fun onPlayClicked(songMetadata: SongMetadata, audioList: List<Audio>) {
+        audioController?.playAudio(songMetadata, audioList, isFavorite)
     }
 
     override fun onPauseClicked(songMetadata: SongMetadata) {
         audioController?.pauseAudio()
-        callbackMetadata(songMetadata)
     }
 
     override fun onResumeClicked(songMetadata: SongMetadata) {
         audioController?.resumeAudio()
-        callbackMetadata(songMetadata)
+    }
+
+    override fun onStopClicked() {
+        audioController?.stopAudio()
     }
 
     override fun callbackMetadata(songMetadata: SongMetadata) {
-        callback?.updateMetaData(songMetadata)
+        menuFragment?.updateAllListMetaData(songMetadata)
     }
 
-    override fun setSongsMetadata(songMetadata: SongMetadata) {
-        adapter.setSongMetadata(songMetadata)
+    override fun setAllListMetaData(songMetadata: SongMetadata) {
+        adapter?.setSongMetadata(songMetadata)
     }
 
-    override fun setList(audioList: List<Audio>) {
-        adapter.setAudioList(audioList)
+    override fun setAllList(audioList: List<Audio>) {
+        adapter?.setAudioList(audioList)
     }
 
-    fun callbackAudioList(audioList: List<Audio>) {
-        callback?.updateAudioList(audioList)
+    override fun navigate(fragment: BaseListFragment) {
+        menuFragment?.navigate(fragment)
+    }
+
+    fun getFavoriteList(): List<Audio>? {
+        return menuFragment?.getFavoriteList()
+    }
+
+    fun addFavoriteAudio(audio: Audio, position: Int) {
+        menuFragment?.addToFavoriteList(audio, position)
+    }
+
+    fun removeFavoriteAudio(audio: Audio) {
+        menuFragment?.removeFromFavoriteList(audio)
+    }
+
+    fun favoriteContains(position: Int): Boolean {
+        return menuFragment?.favoriteContains(position) == true
+    }
+
+    fun favoriteListIsNotEmpty() : Boolean {
+        return menuFragment?.favoriteListIsNotEmpty() == false
     }
 }

@@ -35,6 +35,7 @@ class MediaPlayerService : Service(),
         const val ACTION_PLAY = "MEDIA_PLAYER_ACTION_PLAY"
         const val ACTION_PAUSE = "MEDIA_PLAYER_ACTION_PAUSE"
         const val ACTION_RESUME = "MEDIA_PLAYER_ACTION_RESUME"
+        const val ACTION_STOP = "MEDIA_PLAYER_ACTION_STOP"
         const val ACTION_NEXT = "MEDIA_PLAYER_ACTION_NEXT"
         const val ACTION_PREVIOUS = "MEDIA_PLAYER_ACTION_PREVIOUS"
     }
@@ -47,6 +48,8 @@ class MediaPlayerService : Service(),
         registerBecomingNoisyReceiver()
         registerPauseReceiver()
         registerResumeReceiver()
+        registerStopReceiver()
+        registerNextReceiver()
         audioSession  = AudioSession(applicationContext, "AudioSession")
         notificationCreator = NotificationCreator(applicationContext)
         storage = Storage(applicationContext)
@@ -56,7 +59,7 @@ class MediaPlayerService : Service(),
         if (!requestAudioFocus()) stopSelf()
 
         if (!audioSession.isActive) {
-            audioPlayer = AudioPlayer(applicationContext, storage.readAudioList())
+            audioPlayer = AudioPlayer(applicationContext)
             initMediaSession()
             audioPlayerListener = AudioPlayerListener(notificationCreator!!, audioSession)
             initMediaPlayer()
@@ -111,7 +114,7 @@ class MediaPlayerService : Service(),
 
     private fun initMediaPlayer() {
         if (audioPlayer == null) audioPlayer =
-            AudioPlayer(applicationContext, storage.readAudioList())
+            AudioPlayer(applicationContext)
         audioPlayer!!.setListener(audioPlayerListener!!)
         audioPlayer!!.initialize()
     }
@@ -184,6 +187,20 @@ class MediaPlayerService : Service(),
         registerReceiver(pauseReceiver, intentFilter)
     }
 
+    private val stopReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            audioPlayer!!.stopAudio()
+            notificationCreator?.removeNotification()
+        }
+    }
+
+    private fun registerStopReceiver(){
+        val intentFilter = IntentFilter(ACTION_STOP)
+        registerReceiver(stopReceiver, intentFilter)
+    }
+
+
+
     private val resumeReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             audioPlayer!!.resumeAudio()
@@ -199,6 +216,23 @@ class MediaPlayerService : Service(),
     private fun registerResumeReceiver(){
         val intentFilter = IntentFilter(ACTION_RESUME)
         registerReceiver(resumeReceiver, intentFilter)
+    }
+
+    private val nextReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            audioPlayer!!.playNextAudio()
+            audioSession.updateMetaData()
+            notificationCreator?.createNotification(
+                audioPlayer!!.currentAudio!!,
+                audioSession,
+                PlaybackStatus.PLAYING
+            )
+        }
+    }
+
+    private fun registerNextReceiver(){
+        val intentFilter = IntentFilter(ACTION_NEXT)
+        registerReceiver(nextReceiver, intentFilter)
     }
 
     private val playNewAudioReceiver = object : BroadcastReceiver() {

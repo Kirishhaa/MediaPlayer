@@ -1,17 +1,15 @@
 package com.example.mediaplayer.fragments
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.data.SongMetadata
+import com.example.mediaplayer.data.*
 import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class CustomAdapterAudio(
@@ -36,83 +34,56 @@ class CustomAdapterAudio(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         if(audioList[position].imageArt!=null) {
             holder.artImage.setImageBitmap(audioList[position].imageArt)
         } else {
             holder.artImage.setImageResource(R.drawable.ic_empty_music_card)
         }
         holder.title.text = audioList[position].title
-        holder.playImage.setOnClickListener {
-            if (songMetadata.currentPosition == -1) {
-                playAudio(position)
+
+        if (songMetadata.state == PlaybackStatus.PLAYING) {
+            holder.playBox.isChecked = songMetadata.currentPosition == position
+        } else {
+            holder.playBox.isChecked = false
+        }
+
+        if (type == TypeListFragment.VERTICAL) {
+            holder.title.setOnClickListener {
+                listener.navigate(DetailFragment.onInstance(position, listener.isFavorite))
+            }
+        }
+
+        holder.playBox.setOnClickListener {
+            val checkBox = it as CheckBox
+            if (!checkBox.isChecked) {
+                songMetadata = SongMetadata(position, PlaybackStatus.PAUSED, listener.isFavorite)
+                listener.callbackMetadata(songMetadata)
+                listener.onPauseClicked(songMetadata)
             } else {
                 if (songMetadata.currentPosition == position) {
-                    if (songMetadata.state == PlaybackStatus.PLAYING) {
-                        pauseAudio()
-                    } else {
-                        resumeAudio()
-                    }
+                    songMetadata = SongMetadata(position, PlaybackStatus.PLAYING, listener.isFavorite)
+                    listener.callbackMetadata(songMetadata)
+                    listener.onResumeClicked(songMetadata)
                 } else {
-                    playAudio(position)
+                    val prevPos = songMetadata.currentPosition
+                    songMetadata = SongMetadata(position, PlaybackStatus.PLAYING, listener.isFavorite)
+                    if (prevPos != -1) {
+                        notifyItemChanged(prevPos)
+                    }
+                    listener.callbackMetadata(songMetadata)
+                    listener.onPlayClicked(songMetadata, audioList)
                 }
             }
         }
-        if (songMetadata.state == PlaybackStatus.PAUSED) {
-            holder.playImage.setImageResource(R.drawable.ic_play_arrow)
-        } else {
-            holder.playImage.setImageResource(audioList[position].imagePlayRes)
-        }
-    }
-
-    private fun playAudio(position: Int) {
-        if (songMetadata.currentPosition != -1) {
-            audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_play_arrow
-            notifyItemChanged(songMetadata.currentPosition)
-        }
-        songMetadata = SongMetadata(position, PlaybackStatus.PLAYING)
-        audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
-        notifyItemChanged(songMetadata.currentPosition)
-        listener.callbackMetadata(songMetadata)
-        listener.onPlayClicked(songMetadata)
-    }
-
-    private fun pauseAudio() {
-        songMetadata = SongMetadata(songMetadata.currentPosition, PlaybackStatus.PAUSED)
-        audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_play_arrow
-        notifyItemChanged(songMetadata.currentPosition)
-        listener.callbackMetadata(songMetadata)
-        listener.onPauseClicked(songMetadata)
-    }
-
-    private fun resumeAudio() {
-        songMetadata = SongMetadata(songMetadata.currentPosition, PlaybackStatus.PLAYING)
-        audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
-        notifyItemChanged(songMetadata.currentPosition)
-        listener.callbackMetadata(songMetadata)
-        listener.onResumeClicked(songMetadata)
     }
 
     fun setSongMetadata(songMetadata: SongMetadata) {
-        if (songMetadata.currentPosition != -1) {
-            if (songMetadata.currentPosition == this.songMetadata.currentPosition) {
-                if (songMetadata.state == PlaybackStatus.PLAYING) {
-                    audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
-                    notifyItemChanged(songMetadata.currentPosition)
-                } else {
-                    audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_play_arrow
-                    notifyItemChanged(songMetadata.currentPosition)
-                }
-            } else {
-                if (this.songMetadata.currentPosition != -1) {
-                    audioList[this.songMetadata.currentPosition].imagePlayRes =
-                        R.drawable.ic_play_arrow
-                    notifyItemChanged(this.songMetadata.currentPosition)
-                }
-                audioList[songMetadata.currentPosition].imagePlayRes = R.drawable.ic_pause
-                notifyItemChanged(songMetadata.currentPosition)
-            }
+        if (this.songMetadata.currentPosition != -1) {
+            notifyItemChanged(this.songMetadata.currentPosition)
         }
         this.songMetadata = songMetadata
+        notifyItemChanged(songMetadata.currentPosition)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -129,6 +100,6 @@ class CustomAdapterAudio(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val artImage: ImageView = view.findViewById(R.id.art_image_item)
         val title: TextView = view.findViewById(R.id.title_item)
-        val playImage: ImageView = view.findViewById(R.id.play_image_item)
+        val playBox: CheckBox = view.findViewById(R.id.play_image_item)
     }
 }

@@ -18,8 +18,8 @@ class Repository {
                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).path)
             val f = File(musicDirectory.toString())
             val list = f.listFiles()
-            var image: Bitmap?
             val mediaDataRetriever = MediaMetadataRetriever()
+            var image: Bitmap?
             list?.forEach {
                 if (MimeTypeMap.getFileExtensionFromUrl(it.toUri().toString()) == "mp3") {
                     val src = it.absolutePath

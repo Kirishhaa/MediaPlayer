@@ -51,7 +51,13 @@ class AudioSession(
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(SongMetadata(audioPlayer!!.currentIndex, PlaybackStatus.PLAYING))
+                obj?.getCallback(
+                    SongMetadata(
+                        audioPlayer!!.currentIndex,
+                        PlaybackStatus.PLAYING,
+                        audioPlayer!!.isFavorite!!
+                    )
+                )
             }
 
             override fun onPause() {
@@ -62,7 +68,13 @@ class AudioSession(
                     this@AudioSession,
                     PlaybackStatus.PAUSED
                 )
-                obj?.getCallback(SongMetadata(audioPlayer!!.currentIndex, PlaybackStatus.PAUSED))
+                obj?.getCallback(
+                    SongMetadata(
+                        audioPlayer!!.currentIndex,
+                        PlaybackStatus.PAUSED,
+                        audioPlayer!!.isFavorite!!
+                    )
+                )
             }
 
             override fun onSkipToNext() {
@@ -74,7 +86,13 @@ class AudioSession(
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(SongMetadata(audioPlayer!!.currentIndex, PlaybackStatus.PLAYING))
+                obj?.getCallback(
+                    SongMetadata(
+                        audioPlayer!!.currentIndex,
+                        PlaybackStatus.PLAYING,
+                        audioPlayer!!.isFavorite!!
+                    )
+                )
             }
 
             override fun onSkipToPrevious() {
@@ -86,7 +104,13 @@ class AudioSession(
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(SongMetadata(audioPlayer!!.currentIndex, PlaybackStatus.PLAYING))
+                obj?.getCallback(
+                    SongMetadata(
+                        audioPlayer!!.currentIndex,
+                        PlaybackStatus.PLAYING,
+                        audioPlayer!!.isFavorite!!
+                    )
+                )
             }
 
             override fun onStop() {
@@ -99,11 +123,12 @@ class AudioSession(
 
     fun updateMetaData() {
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.media_session_image)
+
         this.setMetadata(
             MediaMetadataCompat.Builder()
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap)
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, audioPlayer!!.currentAudio!!.duration)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, audioPlayer?.currentAudio!!.title)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, audioPlayer!!.currentAudio!!.title)
                 .build()
         )
     }

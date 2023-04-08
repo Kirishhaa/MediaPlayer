@@ -28,14 +28,13 @@
         android:layout_gravity="center"
         android:gravity="center"/>
 
-    <ImageView
+    <CheckBox
         android:id="@+id/play_image_item"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:padding="30dp"
-        android:layout_gravity="center"
-        android:scaleType="fitXY"
-        android:alpha="0.7"
-        android:src="@drawable/ic_play_arrow" />
+        android:button="@drawable/play_check_box"
+        android:padding="10dp"
+        android:scaleX="3"
+        android:scaleY="3"/>
 
 </androidx.cardview.widget.CardView>

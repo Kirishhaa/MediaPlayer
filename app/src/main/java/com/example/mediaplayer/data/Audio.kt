@@ -9,6 +9,5 @@ data class Audio(
     var imageArt: Bitmap? = null,
     val title: String,
     val duration: Long,
-    val path: String,
-    var imagePlayRes: Int = R.drawable.ic_play_arrow,
+    val path: String
 )
