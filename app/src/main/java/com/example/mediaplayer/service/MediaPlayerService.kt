@@ -49,7 +49,6 @@ class MediaPlayerService : Service(),
         registerPauseReceiver()
         registerResumeReceiver()
         registerStopReceiver()
-        registerNextReceiver()
         audioSession  = AudioSession(applicationContext, "AudioSession")
         notificationCreator = NotificationCreator(applicationContext)
         storage = Storage(applicationContext)
@@ -216,23 +215,6 @@ class MediaPlayerService : Service(),
     private fun registerResumeReceiver(){
         val intentFilter = IntentFilter(ACTION_RESUME)
         registerReceiver(resumeReceiver, intentFilter)
-    }
-
-    private val nextReceiver = object : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-            audioPlayer!!.playNextAudio()
-            audioSession.updateMetaData()
-            notificationCreator?.createNotification(
-                audioPlayer!!.currentAudio!!,
-                audioSession,
-                PlaybackStatus.PLAYING
-            )
-        }
-    }
-
-    private fun registerNextReceiver(){
-        val intentFilter = IntentFilter(ACTION_NEXT)
-        registerReceiver(nextReceiver, intentFilter)
     }
 
     private val playNewAudioReceiver = object : BroadcastReceiver() {

@@ -13,9 +13,16 @@ import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
 
-    private lateinit var playBox: CheckBox
-    private lateinit var favoriteBox: CheckBox
     private lateinit var storage: Storage
+
+    private val imageArt by lazy { view?.findViewById<ImageView>(R.id.detail_image_art) }
+    private val title by lazy { view?.findViewById<TextView>(R.id.detail_title) }
+    private val playBox by lazy { view?.findViewById<CheckBox>(R.id.detail_play_audio) }
+    private val favoriteBox by lazy { view?.findViewById<CheckBox>(R.id.detail_favorite) }
+    private val shuffleBox by lazy { view?.findViewById<CheckBox>(R.id.detail_shuffle) }
+    private val prevImage by lazy { view?.findViewById<ImageView>(R.id.detail_previous_audio) }
+    private val nextImage by lazy { view?.findViewById<ImageView>(R.id.detail_next_audio) }
+
     private var detailPosition = 0
 
     companion object {
@@ -30,34 +37,37 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
     override fun setAllListMetaData(songMetadata: SongMetadata) {
         this.songMetaData = songMetadata
         if (songMetadata.currentPosition == detailPosition) {
-            playBox.isChecked = songMetadata.state == PlaybackStatus.PLAYING
+            playBox?.isChecked = songMetadata.state == PlaybackStatus.PLAYING
         } else {
-            playBox.isChecked = false
+            playBox?.isChecked = false
         }
+    }
+
+    private fun updateData() {
+        if(decoratorList[detailPosition].bitmap==null) imageArt?.setImageResource(R.drawable.ic_empty_music_card)
+        else imageArt?.setImageBitmap(decoratorList[detailPosition].bitmap)
+
+        title?.text = decoratorList[detailPosition].title
+
+        if (songMetaData.state == PlaybackStatus.PLAYING) {
+            playBox?.isChecked = songMetaData.currentPosition == detailPosition
+        } else {
+            playBox?.isChecked = false
+        }
+
+        favoriteBox?.isChecked = if (isFavorite) true else favoriteContains(detailPosition)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        detailPosition = savedInstanceState?.getInt("detailPosition") ?: detailPosition
+
         storage = Storage(requireContext().applicationContext)
 
+        updateData()
 
-        val curAudio = audioList[detailPosition]
-
-
-        val imageArt = view.findViewById<ImageView>(R.id.detail_image_art)
-        imageArt.setImageBitmap(curAudio.imageArt)
-
-        val title = view.findViewById<TextView>(R.id.detail_title)
-        title.text = curAudio.title
-
-        playBox = view.findViewById(R.id.detail_play_audio)
-        if (songMetaData.state == PlaybackStatus.PLAYING) {
-            playBox.isChecked = songMetaData.currentPosition == detailPosition
-        } else {
-            playBox.isChecked = false
-        }
-
-        playBox.setOnClickListener {
+        playBox?.setOnClickListener {
             val checkBox = it as CheckBox
             if (!checkBox.isChecked) {
                 songMetaData = SongMetadata(detailPosition, PlaybackStatus.PAUSED, isFavorite)
@@ -72,32 +82,31 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
                     songMetaData = SongMetadata(detailPosition, PlaybackStatus.PLAYING, isFavorite)
                     callbackMetadata(songMetaData)
                     val list = if (isFavorite) getFavoriteList() ?: emptyList() else audioList
-                    onPlayClicked(songMetaData, list)
+                    onPlayClicked(songMetaData, list, getFavoriteMap())
                 }
             }
         }
 
-        favoriteBox = view.findViewById(R.id.detail_favorite)
-
-        favoriteBox.isChecked = if (isFavorite) true else favoriteContains(detailPosition)
-
-        favoriteBox.setOnClickListener {
+        favoriteBox?.setOnClickListener {
             val checkBox = it as CheckBox
             if (checkBox.isChecked) {
                 addFavoriteAudio(audioList[detailPosition], detailPosition)
             } else {
                 removeFavoriteAudio(audioList[detailPosition])
                 if (!favoriteListIsNotEmpty()) {
-                    if(storage.readFavorite()) onStopClicked()
+                    if(storage.readFavorite()) {
+                        onStopClicked()
+                        callbackMetadata(SongMetadata())
+                    }
                     if(isFavorite) navigate(HorizontalFragment())
                 } else {
-                    if ((playBox.isChecked || songMetaData.currentPosition == detailPosition)) {
+                    if ((playBox!!.isChecked || songMetaData.currentPosition == detailPosition)) {
                         if(audioList.size-1 == detailPosition){
                             val newMetadata = SongMetadata(0, PlaybackStatus.PLAYING, isFavorite)
                             callbackMetadata(newMetadata)
-                          onPlayClicked(newMetadata, audioList)
+                          onPlayClicked(newMetadata, audioList, getFavoriteMap())
                         } else {
-                            onPlayClicked(songMetaData, audioList)
+                            onPlayClicked(songMetaData, audioList, getFavoriteMap())
                         }
                         if(isFavorite) navigate(VerticalFragment.onInstance(isFavorite))
                     } else {
@@ -109,13 +118,30 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
                     }
                 }
             }
-            storage.writeFavoriteAudioList(getFavoriteList() ?: emptyList())
+            storage.writeFavoriteMap(getFavoriteMap() ?: emptyMap())
+        }
+
+        prevImage?.setOnClickListener {
+            if(detailPosition==0) detailPosition = decoratorList.size-1 else detailPosition--
+            val newMeta = SongMetadata(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+            onPlayClicked(newMeta, audioList, getFavoriteMap())
+            callbackMetadata(newMeta)
+            updateData()
+        }
+
+        nextImage?.setOnClickListener {
+            if(detailPosition==decoratorList.size-1) detailPosition = songMetaData.currentPosition+1 else detailPosition++
+            val newMeta = SongMetadata(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+            onPlayClicked(newMeta, audioList, getFavoriteMap())
+            callbackMetadata(newMeta)
+            updateData()
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean("isFavorite", favoriteBox.isChecked)
+        outState.putBoolean("isFavorite", favoriteBox!!.isChecked)
+        outState.putInt("detailPosition", detailPosition)
     }
 
     override fun onBackPressed(): Boolean {

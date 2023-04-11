@@ -8,16 +8,30 @@ class Storage(private val context: Context) {
     private val STORAGE = "com.example.mediaplayer.STORAGE"
     private val ALL_AUDIO_LIST = "all_audio_list"
     private val FAVORITE_AUDIO_LIST = "favorite_audio_list"
+    private val FAVORITE_MAP = "favorite_map"
+
+    fun writeFavoriteMap(map: Map<Int, Audio>) {
+        val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        val editor = preferences.edit()
+        val gson = Gson()
+        val jsonList = gson.toJson(map)
+        editor.putString(FAVORITE_MAP, jsonList)
+        editor.apply()
+    }
+
+    fun readFavoriteMap(): LinkedHashMap<Int, Audio> {
+        val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = preferences.getString(FAVORITE_MAP, null)
+        val type = object : TypeToken<LinkedHashMap<Int, Audio>>() {}.type
+        return if (json != null) gson.fromJson(json, type) else LinkedHashMap()
+    }
 
     fun writeAllAudioList(audioList: List<Audio>) {
         writeAudioList(audioList, ALL_AUDIO_LIST)
     }
 
-    fun writeFavoriteAudioList(audioList: List<Audio>) {
-        writeAudioList(audioList, FAVORITE_AUDIO_LIST)
-    }
-
-    private fun writeAudioList(audioList: List<Audio>, namePref: String){
+    private fun writeAudioList(audioList: List<Audio>, namePref: String) {
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val editor = preferences.edit()
         val gson = Gson()
@@ -30,16 +44,12 @@ class Storage(private val context: Context) {
         return readAudioList(ALL_AUDIO_LIST)
     }
 
-    fun readFavoriteAudioList() : List<Audio> {
-        return readAudioList(FAVORITE_AUDIO_LIST)
-    }
-
     private fun readAudioList(namePref: String): List<Audio> {
         val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         val gson = Gson()
         val json = preferences.getString(namePref, null)
         val type = object : TypeToken<ArrayList<Audio>>() {}.type
-        return if(json!=null) gson.fromJson(json, type) else emptyList()
+        return if (json != null) gson.fromJson(json, type) else emptyList()
     }
 
     fun writeIndex(index: Int) {

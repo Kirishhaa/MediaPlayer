@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.AudioDecoder
 import com.example.mediaplayer.data.PlaybackStatus
 
 class NotificationCreator(private val context: Context) {
@@ -40,12 +41,14 @@ class NotificationCreator(private val context: Context) {
             }
         }
 
+        val entity = AudioDecoder.getAudioEntity(audio)
+
         createChannel()
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle(audio.title)
+            .setContentTitle(entity.title)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setLargeIcon(audio.imageArt)
+            .setLargeIcon(entity.bitmap)
             .setContentText("")
             .setAutoCancel(false)
             .setStyle(MediaStyle()

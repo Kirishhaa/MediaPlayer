@@ -62,11 +62,18 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         outState.putBoolean("isBound", boundService)
     }
 
-    override fun playAudio(songMetadata: SongMetadata, audioList: List<Audio>, isFavorite: Boolean) {
+    override fun playAudio(
+        songMetadata: SongMetadata,
+        audioList: List<Audio>,
+        isFavorite: Boolean,
+        favoriteMap: Map<Int, Audio>?,
+    ) {
         val storage = Storage(applicationContext)
         storage.writeIndex(songMetadata.currentPosition)
         storage.writeFavorite(isFavorite)
-        if(isFavorite) storage.writeFavoriteAudioList(audioList) else storage.writeAllAudioList(audioList)
+        if (isFavorite) storage.writeFavoriteMap(favoriteMap!!) else storage.writeAllAudioList(
+            audioList
+        )
         if (!boundService) {
             val intent = Intent(this, MediaPlayerService::class.java)
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -92,16 +99,11 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         sendBroadcast(broadcastIntent)
     }
 
-    override fun nextAudio() {
-        val broadcastIntent = Intent(MediaPlayerService.ACTION_NEXT)
-        sendBroadcast(broadcastIntent)
-    }
-
     override fun onBackPressed() {
         supportFragmentManager.fragments.getOrNull(0)?.apply {
             childFragmentManager.fragments.forEach {
-                if(it is FragmentBackPressed){
-                    if(!it.onBackPressed()) super.onBackPressed()
+                if (it is FragmentBackPressed) {
+                    if (!it.onBackPressed()) super.onBackPressed()
                 }
             }
         }

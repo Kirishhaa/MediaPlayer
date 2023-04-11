@@ -3,19 +3,20 @@ package com.example.mediaplayer.fragments.superclasses
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.AudioEntity
 import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.fragments.CustomAdapterAudio
 import com.example.mediaplayer.fragments.MenuFragment
 import com.example.mediaplayer.interfaces.*
 
 abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
-    AdapterListener, AllListContainer, FragmentNavigator, FragmentBackPressed {
+    AdapterListener, AllListContainer, FragmentNavigator, FragmentBackPressed{
     private var audioController: AudioController? = null
     private var menuFragment: MenuFragment? = null
     protected var songMetaData: SongMetadata = SongMetadata()
     protected var audioList: List<Audio> = emptyList()
+    protected var decoratorList: List<AudioEntity> = emptyList()
     protected var adapter: CustomAdapterAudio? = null
     open var isFavorite = false
     protected set
@@ -35,6 +36,7 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
+
         val meta = menuFragment?.getListMetaData()
         if(meta!=null) {
             if((isFavorite && meta.isFavorite) || (!isFavorite && !meta.isFavorite)) {
@@ -43,10 +45,17 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
         } else {
             songMetaData = SongMetadata()
         }
+
         audioList = if(isFavorite) {
             menuFragment?.getFavoriteList()?.toList() ?: emptyList()
         } else {
             menuFragment?.getAudioList() ?: emptyList()
+        }
+
+        decoratorList = if(isFavorite) {
+            menuFragment?.getFavoriteDecorator() ?: emptyList()
+        } else {
+            menuFragment?.getAllListDecorator() ?: emptyList()
         }
     }
 
@@ -55,8 +64,8 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
         outState.putBoolean("isFavorite", isFavorite)
     }
 
-    override fun onPlayClicked(songMetadata: SongMetadata, audioList: List<Audio>) {
-        audioController?.playAudio(songMetadata, audioList, isFavorite)
+    override fun onPlayClicked(songMetadata: SongMetadata, audioList: List<Audio>, favoriteMap: Map<Int, Audio>?) {
+        audioController?.playAudio(songMetadata, audioList, isFavorite, favoriteMap)
     }
 
     override fun onPauseClicked(songMetadata: SongMetadata) {
@@ -79,8 +88,12 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
         adapter?.setSongMetadata(songMetadata)
     }
 
-    override fun setAllList(audioList: List<Audio>) {
-        adapter?.setAudioList(audioList)
+    fun getFavoriteMap() : Map<Int, Audio>? {
+        return menuFragment?.getFavoriteMap()
+    }
+
+    override fun setAllList(audioList: List<Audio>, decoratorList: List<AudioEntity>) {
+        adapter?.setAudioList(audioList, decoratorList)
     }
 
     override fun navigate(fragment: BaseListFragment) {
@@ -104,6 +117,6 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout),
     }
 
     fun favoriteListIsNotEmpty() : Boolean {
-        return menuFragment?.favoriteListIsNotEmpty() == false
+        return menuFragment?.favoriteListIsNotEmpty() == true
     }
 }

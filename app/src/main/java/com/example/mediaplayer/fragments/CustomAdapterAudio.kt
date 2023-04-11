@@ -20,6 +20,7 @@ class CustomAdapterAudio(
 
     private var songMetadata: SongMetadata = SongMetadata()
     private var audioList: List<Audio> = emptyList()
+    private var decoratorList: List<AudioEntity> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = when (type) {
@@ -35,12 +36,12 @@ class CustomAdapterAudio(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        if(audioList[position].imageArt!=null) {
-            holder.artImage.setImageBitmap(audioList[position].imageArt)
+        if(decoratorList[position].bitmap!=null) {
+            holder.artImage.setImageBitmap(decoratorList[position].bitmap)
         } else {
             holder.artImage.setImageResource(R.drawable.ic_empty_music_card)
         }
-        holder.title.text = audioList[position].title
+        holder.title.text = decoratorList[position].title
 
         if (songMetadata.state == PlaybackStatus.PLAYING) {
             holder.playBox.isChecked = songMetadata.currentPosition == position
@@ -72,7 +73,7 @@ class CustomAdapterAudio(
                         notifyItemChanged(prevPos)
                     }
                     listener.callbackMetadata(songMetadata)
-                    listener.onPlayClicked(songMetadata, audioList)
+                    listener.onPlayClicked(songMetadata, audioList, listener.getFavoriteMap())
                 }
             }
         }
@@ -87,7 +88,8 @@ class CustomAdapterAudio(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setAudioList(audioList: List<Audio>) {
+    fun setAudioList(audioList: List<Audio>, decoratorList: List<AudioEntity>) {
+        this.decoratorList = decoratorList
         this.audioList = audioList
         notifyDataSetChanged()
     }

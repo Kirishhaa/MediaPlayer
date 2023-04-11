@@ -20,7 +20,7 @@
         android:layout_marginTop="40dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/menu_fragment_all_audio"/>
+        app:layout_constraintTop_toBottomOf="@id/menu_fragment_all_audio" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

@@ -9,6 +9,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.example.mediaplayer.R
+import com.example.mediaplayer.data.AudioDecoder
 import com.example.mediaplayer.data.SongMetadata
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.interfaces.AudioSessionInteraction
@@ -124,11 +125,13 @@ class AudioSession(
     fun updateMetaData() {
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.media_session_image)
 
+        val entity = AudioDecoder.getAudioEntity(audioPlayer!!.currentAudio!!)
+
         this.setMetadata(
             MediaMetadataCompat.Builder()
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap)
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, audioPlayer!!.currentAudio!!.duration)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, audioPlayer!!.currentAudio!!.title)
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, entity.duration)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, entity.title)
                 .build()
         )
     }

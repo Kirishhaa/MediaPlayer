@@ -4,26 +4,41 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.Repository
-import com.example.mediaplayer.data.SongMetadata
+import com.example.mediaplayer.data.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AudioViewModel : ViewModel() {
     private val repo: Repository = Repository()
-    private var mutableAllListMetaData = MutableLiveData<SongMetadata>()
+    private val mutableAllListMetaData = MutableLiveData<SongMetadata>()
     val allListMetaData: LiveData<SongMetadata> = mutableAllListMetaData
-    private var mutableAudioList = MutableLiveData<List<Audio>>()
+    private val mutableAudioList = MutableLiveData<List<Audio>>()
     val allAudioList: LiveData<List<Audio>> = mutableAudioList
-    private var mutableHashMapFavorite = MutableLiveData<HashMap<Int, Audio>>()
-    val hashMapFavorite : LiveData<HashMap<Int, Audio>> = mutableHashMapFavorite
+    private val mutableHashMapFavorite = MutableLiveData<LinkedHashMap<Int, Audio>>()
+    val hashMapFavorite: LiveData<LinkedHashMap<Int, Audio>> = mutableHashMapFavorite
+    private val mutableAllListDecorator = MutableLiveData<List<AudioEntity>>()
+    val allListDecorator: LiveData<List<AudioEntity>> = mutableAllListDecorator
+    private val mutableFavoriteDecorator = MutableLiveData<List<AudioEntity>>()
+    val favoriteDecorator: LiveData<List<AudioEntity>> = mutableFavoriteDecorator
     var isFavorite: Boolean = false
-    private set
+        private set
 
-    init {
-        if(mutableAllListMetaData.value==null)
+    fun initialize(readAllAudioList: List<Audio>, readFavoriteMap: LinkedHashMap<Int, Audio>) {
+        if (readAllAudioList.isEmpty()) {
             loadData()
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                mutableAllListDecorator.postValue(readAllAudioList.map {
+                    AudioDecoder.getAudioEntity(it)
+                })
+                mutableFavoriteDecorator.postValue(
+                    readFavoriteMap.values.toList().map { AudioDecoder.getAudioEntity(it) }
+                )
+                mutableAudioList.postValue(readAllAudioList)
+                mutableHashMapFavorite.postValue(readFavoriteMap)
+            }
+        }
     }
 
     fun updateAllListMetaData(metaData: SongMetadata) {
@@ -31,36 +46,46 @@ class AudioViewModel : ViewModel() {
     }
 
     fun addToFavoriteSet(audio: Audio, position: Int) {
-        if(mutableHashMapFavorite.value == null) {
-            mutableHashMapFavorite.value = HashMap()
-        }
         mutableHashMapFavorite.value?.put(position, audio)
+        val newValue = AudioDecoder.getAudioEntity(audio)
+        val mutList = mutableFavoriteDecorator.value!!.toMutableList()
+        mutList.add(newValue)
+        mutableFavoriteDecorator.value = mutList
     }
 
     fun removeFromFavoriteSet(audio: Audio) {
-        val list = allAudioList.value
-        var position = -1
-        list?.forEachIndexed{ index, song ->
-            if(song == audio) {
-                position= index
+        val listMap = allAudioList.value
+        var positionMap = -1
+        var positionList = -1
+        val listDefault = mutableHashMapFavorite.value?.values
+        listMap?.forEachIndexed { index, song ->
+            if (song.path == audio.path) {
+                positionMap = index
                 return@forEachIndexed
             }
         }
-        mutableHashMapFavorite.value?.remove(position)
+        listDefault?.forEachIndexed{index, song ->
+            if (song.path == audio.path) {
+                positionList = index
+                return@forEachIndexed
+            }
+        }
+        mutableHashMapFavorite.value?.remove(positionMap)
+        val decoratorList = mutableFavoriteDecorator.value!!.toMutableList()
+        decoratorList.removeAt(positionList)
+        mutableFavoriteDecorator.value = decoratorList
     }
 
     fun favoriteContains(position: Int): Boolean {
         return mutableHashMapFavorite.value?.contains(position) == true
     }
 
-    fun favoriteListIsNotEmpty() : Boolean{
-        return mutableHashMapFavorite.value?.isNotEmpty() == false
-    }
-
     private fun loadData() {
         viewModelScope.launch(Dispatchers.IO) {
             mutableAllListMetaData.postValue(SongMetadata())
-            mutableAudioList.postValue(repo.loadData())
+            val list = repo.loadData()
+            mutableAllListDecorator.postValue(list.map { AudioDecoder.getAudioEntity(it) })
+            mutableAudioList.postValue(list)
         }
     }
 }
