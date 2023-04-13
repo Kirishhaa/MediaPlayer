@@ -1,51 +1,53 @@
 package com.example.mediaplayer.service
 
-import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
-import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.Storage
+import kotlin.properties.Delegates
 
 class AudioPlayer(
-    context: Context,
+    private val storage: Storage,
 ) : MediaPlayer() {
     private var audioList: List<Audio>
-    private val storage = Storage(context)
-    private var listener: AudioPlayerListener? = null
-
-    var currentAudio: Audio? = null
+    private lateinit var listener: AudioPlayerListener
+    lateinit var currentAudio: Audio
         private set
     var currentIndex = -1
         private set
-    var isFavorite: Boolean? = null
+    var isFavorite: Boolean by Delegates.notNull()
         private set
 
     init {
         currentIndex = storage.readIndex()
         isFavorite = storage.readFavorite()
-        audioList = if(storage.readFavorite()) storage.readFavoriteMap().values.toList() else storage.readAllAudioList()
-
+        audioList = if (storage.readFavorite()) {
+            storage.readFavoriteMap().values.toList()
+        } else {
+            storage.readAllAudioList()
+        }
         if (currentIndex != -1 && currentIndex < audioList.size) {
             currentAudio = audioList[currentIndex]
         }
     }
 
-    fun setListener(listener: AudioPlayerListener) {
+    fun initialize(listener: AudioPlayerListener) {
         this.listener = listener
-    }
-
-    fun initialize() {
 
         setOnErrorListener(listener)
         setOnPreparedListener(listener)
         setOnCompletionListener(listener)
 
+        if (currentIndex != -1 && currentIndex < audioList.size) {
+            currentAudio = audioList[currentIndex]
+        }
+
         reset()
 
         setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
-            setDataSource(currentAudio!!.path)
+            setDataSource(currentAudio.path)
         } catch (_: Exception) {
             Log.d("AudioPlayer", "dataSource for currentAudio isn't right")
         }
@@ -61,7 +63,12 @@ class AudioPlayer(
 
     fun playNextAudio() {
         isFavorite = storage.readFavorite()
-        audioList = if(storage.readFavorite()) storage.readFavoriteMap().values.toList() else storage.readAllAudioList()
+        audioList =
+            if (storage.readFavorite()) {
+                storage.readFavoriteMap().values.toList()
+            } else {
+                storage.readAllAudioList()
+            }
         if (currentIndex == audioList.size - 1) {
             currentIndex = 0
         } else currentIndex++
@@ -69,12 +76,17 @@ class AudioPlayer(
         currentAudio = audioList[currentIndex]
         stopAudio()
         reset()
-        initialize()
+        initialize(listener)
     }
 
     fun playPrevAudio() {
         isFavorite = storage.readFavorite()
-        audioList = if(storage.readFavorite()) storage.readFavoriteMap().values.toList() else storage.readAllAudioList()
+        audioList =
+            if (storage.readFavorite()) {
+                storage.readFavoriteMap().values.toList()
+            } else {
+                storage.readAllAudioList()
+            }
         if (currentIndex == 0) {
             currentIndex = audioList.size - 1
         } else currentIndex--
@@ -82,7 +94,7 @@ class AudioPlayer(
         currentAudio = audioList[currentIndex]
         stopAudio()
         reset()
-        initialize()
+        initialize(listener)
     }
 
     fun stopAudio() {
@@ -106,7 +118,12 @@ class AudioPlayer(
     fun playNewAudio() {
         currentIndex = storage.readIndex()
         isFavorite = storage.readFavorite()
-        audioList = if(storage.readFavorite()) storage.readFavoriteMap().values.toList() else storage.readAllAudioList()
+        audioList =
+            if (storage.readFavorite()) {
+                storage.readFavoriteMap().values.toList()
+            } else {
+                storage.readAllAudioList()
+            }
         if (currentIndex == -1 || currentIndex >= audioList.size) {
             Log.d("AudioPlayer", "cuurent index == -1 or < than audioList.size")
         } else {
@@ -114,6 +131,6 @@ class AudioPlayer(
         }
         stopAudio()
         reset()
-        initialize()
+        initialize(listener)
     }
 }

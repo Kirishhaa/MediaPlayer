@@ -10,15 +10,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.*
-import com.example.mediaplayer.fragments.superclasses.BaseListFragment
+import com.example.mediaplayer.interfaces.myinnf.markers.AudioAdapterListener
 
 class CustomAdapterAudio(
-    private val listener: BaseListFragment,
+    private val listener: AudioAdapterListener,
     private val type: TypeListFragment,
 ) :
     RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
 
-    private var songMetadata: SongMetadata = SongMetadata()
+    private var metadata: MetaData = MetaData()
     private var audioList: List<Audio> = emptyList()
     private var decoratorList: List<AudioEntity> = emptyList()
 
@@ -43,48 +43,49 @@ class CustomAdapterAudio(
         }
         holder.title.text = decoratorList[position].title
 
-        if (songMetadata.state == PlaybackStatus.PLAYING) {
-            holder.playBox.isChecked = songMetadata.currentPosition == position
+        if (metadata.state == PlaybackStatus.PLAYING) {
+            holder.playBox.isChecked = metadata.currentPosition == position
         } else {
             holder.playBox.isChecked = false
         }
 
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
-                listener.navigate(DetailFragment.onInstance(position, listener.isFavorite))
+                listener.navigate(DetailFragment.onInstance(position, listener.getIsFavoriteState()))
             }
         }
 
         holder.playBox.setOnClickListener {
             val checkBox = it as CheckBox
             if (!checkBox.isChecked) {
-                songMetadata = SongMetadata(position, PlaybackStatus.PAUSED, listener.isFavorite)
-                listener.callbackMetadata(songMetadata)
-                listener.onPauseClicked(songMetadata)
+                metadata =
+                    MetaData(position, PlaybackStatus.PAUSED, listener.getIsFavoriteState())
+                listener.callbackMetaData(metadata)
+                listener.sendPauseAudio(metadata)
             } else {
-                if (songMetadata.currentPosition == position) {
-                    songMetadata = SongMetadata(position, PlaybackStatus.PLAYING, listener.isFavorite)
-                    listener.callbackMetadata(songMetadata)
-                    listener.onResumeClicked(songMetadata)
+                if (metadata.currentPosition == position) {
+                    metadata = MetaData(position, PlaybackStatus.PLAYING, listener.getIsFavoriteState())
+                    listener.callbackMetaData(metadata)
+                    listener.sendResumeAudio(metadata)
                 } else {
-                    val prevPos = songMetadata.currentPosition
-                    songMetadata = SongMetadata(position, PlaybackStatus.PLAYING, listener.isFavorite)
+                    val prevPos = metadata.currentPosition
+                    metadata = MetaData(position, PlaybackStatus.PLAYING, listener.getIsFavoriteState())
                     if (prevPos != -1) {
                         notifyItemChanged(prevPos)
                     }
-                    listener.callbackMetadata(songMetadata)
-                    listener.onPlayClicked(songMetadata, audioList, listener.getFavoriteMap())
+                    listener.callbackMetaData(metadata)
+                    listener.sendPlayAudio(metadata, audioList)
                 }
             }
         }
     }
 
-    fun setSongMetadata(songMetadata: SongMetadata) {
-        if (this.songMetadata.currentPosition != -1) {
-            notifyItemChanged(this.songMetadata.currentPosition)
+    fun setSongMetadata(metadata: MetaData) {
+        if (this.metadata.currentPosition != -1) {
+            notifyItemChanged(this.metadata.currentPosition)
         }
-        this.songMetadata = songMetadata
-        notifyItemChanged(songMetadata.currentPosition)
+        this.metadata = metadata
+        notifyItemChanged(metadata.currentPosition)
     }
 
     @SuppressLint("NotifyDataSetChanged")

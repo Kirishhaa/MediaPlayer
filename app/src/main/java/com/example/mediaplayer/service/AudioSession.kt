@@ -10,25 +10,21 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.AudioDecoder
-import com.example.mediaplayer.data.SongMetadata
+import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.myinnf.AudioSessionInteraction
 
 class AudioSession(
     private val context: Context,
     tag: String,
+    private val audioPlayer: AudioPlayer,
+    private val notificationCreator: NotificationCreator
 ) : MediaSessionCompat(context, tag) {
-
-    private val notificationCreator = NotificationCreator(context)
-    private var audioPlayer: AudioPlayer? = null
 
     private var mediaSessionManager: MediaSessionManager? = null
     private var transportControls: MediaControllerCompat.TransportControls? = null
     private var obj: AudioSessionInteraction? = null
 
-    fun setAudioPlayer(audioPlayer: AudioPlayer) {
-        this.audioPlayer = audioPlayer
-    }
 
     fun setCallback(obj: AudioSessionInteraction) {
         this.obj = obj
@@ -46,77 +42,77 @@ class AudioSession(
         this.setCallback(object : Callback() {
             override fun onPlay() {
                 super.onPlay()
-                audioPlayer!!.resumeAudio()
+                audioPlayer.resumeAudio()
                 notificationCreator.createNotification(
-                    audioPlayer?.currentAudio!!,
+                    audioPlayer.currentAudio,
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(
-                    SongMetadata(
-                        audioPlayer!!.currentIndex,
+                obj?.getMetaDataFromService(
+                    MetaData(
+                        audioPlayer.currentIndex,
                         PlaybackStatus.PLAYING,
-                        audioPlayer!!.isFavorite!!
+                        audioPlayer.isFavorite
                     )
                 )
             }
 
             override fun onPause() {
                 super.onPause()
-                audioPlayer!!.pauseAudio()
+                audioPlayer.pauseAudio()
                 notificationCreator.createNotification(
-                    audioPlayer?.currentAudio!!,
+                    audioPlayer.currentAudio,
                     this@AudioSession,
                     PlaybackStatus.PAUSED
                 )
-                obj?.getCallback(
-                    SongMetadata(
-                        audioPlayer!!.currentIndex,
+                obj?.getMetaDataFromService(
+                    MetaData(
+                        audioPlayer.currentIndex,
                         PlaybackStatus.PAUSED,
-                        audioPlayer!!.isFavorite!!
+                        audioPlayer.isFavorite
                     )
                 )
             }
 
             override fun onSkipToNext() {
                 super.onSkipToNext()
-                audioPlayer!!.playNextAudio()
+                audioPlayer.playNextAudio()
                 updateMetaData()
                 notificationCreator.createNotification(
-                    audioPlayer?.currentAudio!!,
+                    audioPlayer.currentAudio,
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(
-                    SongMetadata(
-                        audioPlayer!!.currentIndex,
+                obj?.getMetaDataFromService(
+                    MetaData(
+                        audioPlayer.currentIndex,
                         PlaybackStatus.PLAYING,
-                        audioPlayer!!.isFavorite!!
+                        audioPlayer.isFavorite
                     )
                 )
             }
 
             override fun onSkipToPrevious() {
                 super.onSkipToPrevious()
-                audioPlayer!!.playPrevAudio()
+                audioPlayer.playPrevAudio()
                 updateMetaData()
                 notificationCreator.createNotification(
-                    audioPlayer?.currentAudio!!,
+                    audioPlayer.currentAudio,
                     this@AudioSession,
                     PlaybackStatus.PLAYING
                 )
-                obj?.getCallback(
-                    SongMetadata(
-                        audioPlayer!!.currentIndex,
+                obj?.getMetaDataFromService(
+                    MetaData(
+                        audioPlayer.currentIndex,
                         PlaybackStatus.PLAYING,
-                        audioPlayer!!.isFavorite!!
+                        audioPlayer.isFavorite
                     )
                 )
             }
 
             override fun onStop() {
                 super.onStop()
-                audioPlayer!!.stopAudio()
+                audioPlayer.stopAudio()
                 notificationCreator.removeNotification()
             }
         })
@@ -125,7 +121,7 @@ class AudioSession(
     fun updateMetaData() {
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.media_session_image)
 
-        val entity = AudioDecoder.getAudioEntity(audioPlayer!!.currentAudio!!)
+        val entity = AudioDecoder.getAudioEntity(audioPlayer.currentAudio)
 
         this.setMetadata(
             MediaMetadataCompat.Builder()

@@ -5,12 +5,13 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
+import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
     companion object{
-        fun onInstance(isFavorite: Boolean): VerticalFragment{
+        fun onInstance(isFavorite: Boolean): VerticalFragment {
             val verticalFragment = VerticalFragment()
             verticalFragment.isFavorite = isFavorite
             return verticalFragment
@@ -22,8 +23,8 @@ class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_vertical)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.VERTICAL)
-        adapter?.setAudioList(audioList, decoratorList)
-        adapter?.setSongMetadata(songMetaData)
+        setList(audioList, decoratorList)
+        setMetaData(metaData)
         recycler.adapter = adapter
     }
 

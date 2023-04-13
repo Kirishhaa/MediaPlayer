@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
+import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
@@ -25,8 +26,8 @@ class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_music_list_horizontal)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.HORIZONTAL)
-        adapter?.setAudioList(audioList, decoratorList)
-        adapter?.setSongMetadata(songMetaData)
+        setList(audioList, decoratorList)
+        setMetaData(metaData)
         recycler.adapter = adapter
     }
 

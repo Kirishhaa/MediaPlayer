@@ -34,7 +34,7 @@ class AudioPlayerListener(
         audioSession.controller.transportControls.skipToNext()
         audioSession.updateMetaData()
         notificationCreator.createNotification(
-            mp.currentAudio!!,
+            mp.currentAudio,
             audioSession,
             PlaybackStatus.PLAYING
         )

@@ -5,10 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.interfaces.Callback
-import com.example.mediaplayer.interfaces.FragmentBackPressed
 
 abstract class BaseFragment(private val resLayout: Int) : Fragment() {
 

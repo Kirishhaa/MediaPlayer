@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 class AudioViewModel : ViewModel() {
     private val repo: Repository = Repository()
-    private val mutableAllListMetaData = MutableLiveData<SongMetadata>()
-    val allListMetaData: LiveData<SongMetadata> = mutableAllListMetaData
+    private val mutableMetaData = MutableLiveData<MetaData>()
+    val metaData: LiveData<MetaData> = mutableMetaData
     private val mutableAudioList = MutableLiveData<List<Audio>>()
     val allAudioList: LiveData<List<Audio>> = mutableAudioList
     private val mutableHashMapFavorite = MutableLiveData<LinkedHashMap<Int, Audio>>()
@@ -21,8 +21,6 @@ class AudioViewModel : ViewModel() {
     val allListDecorator: LiveData<List<AudioEntity>> = mutableAllListDecorator
     private val mutableFavoriteDecorator = MutableLiveData<List<AudioEntity>>()
     val favoriteDecorator: LiveData<List<AudioEntity>> = mutableFavoriteDecorator
-    var isFavorite: Boolean = false
-        private set
 
     fun initialize(readAllAudioList: List<Audio>, readFavoriteMap: LinkedHashMap<Int, Audio>) {
         if (readAllAudioList.isEmpty()) {
@@ -41,11 +39,11 @@ class AudioViewModel : ViewModel() {
         }
     }
 
-    fun updateAllListMetaData(metaData: SongMetadata) {
-        mutableAllListMetaData.value = metaData
+    fun updateAllListMetaData(metaData: MetaData) {
+        mutableMetaData.value = metaData
     }
 
-    fun addToFavoriteSet(audio: Audio, position: Int) {
+    fun addToFavoriteSet(position: Int, audio: Audio) {
         mutableHashMapFavorite.value?.put(position, audio)
         val newValue = AudioDecoder.getAudioEntity(audio)
         val mutList = mutableFavoriteDecorator.value!!.toMutableList()
@@ -76,13 +74,17 @@ class AudioViewModel : ViewModel() {
         mutableFavoriteDecorator.value = decoratorList
     }
 
+    fun getFavoriteState() : Boolean {
+        return mutableMetaData.value?.isFavorite ?: false
+    }
+
     fun favoriteContains(position: Int): Boolean {
         return mutableHashMapFavorite.value?.contains(position) == true
     }
 
     private fun loadData() {
         viewModelScope.launch(Dispatchers.IO) {
-            mutableAllListMetaData.postValue(SongMetadata())
+            mutableMetaData.postValue(MetaData())
             val list = repo.loadData()
             mutableAllListDecorator.postValue(list.map { AudioDecoder.getAudioEntity(it) })
             mutableAudioList.postValue(list)
