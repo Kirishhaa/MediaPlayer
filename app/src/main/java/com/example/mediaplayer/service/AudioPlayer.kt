@@ -10,7 +10,8 @@ import kotlin.properties.Delegates
 class AudioPlayer(
     private val storage: Storage,
 ) : MediaPlayer() {
-    private var audioList: List<Audio>
+    var audioList: List<Audio>
+    private set
     private lateinit var listener: AudioPlayerListener
     lateinit var currentAudio: Audio
         private set
@@ -30,6 +31,12 @@ class AudioPlayer(
         if (currentIndex != -1 && currentIndex < audioList.size) {
             currentAudio = audioList[currentIndex]
         }
+    }
+
+    fun changeToAllAudioList() {
+        currentIndex =storage.readIndex()
+        audioList = storage.readAllAudioList()
+        isFavorite = false
     }
 
     fun initialize(listener: AudioPlayerListener) {

@@ -5,10 +5,9 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.navigation.fragment.findNavController
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.data.MetaData
-import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.data.*
 import com.example.mediaplayer.fragments.superclasses.BaseListFragment
 
 class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
@@ -43,19 +42,17 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
         }
     }
 
-    private fun updateData() {
-        if(decoratorList[detailPosition].bitmap==null) imageArt?.setImageResource(R.drawable.ic_empty_music_card)
-        else imageArt?.setImageBitmap(decoratorList[detailPosition].bitmap)
+    private fun updateData(checkBoxSetData: CheckBoxSetData) {
+        checkBoxSetData.setData(
+            imageArt = imageArt,
+            title = title,
+            playBox = playBox,
+            curPos = detailPosition,
+            metaData = metaData
+        )
 
-        title?.text = decoratorList[detailPosition].title
-
-        if (metaData.state == PlaybackStatus.PLAYING) {
-            playBox?.isChecked = metaData.currentPosition == detailPosition
-        } else {
-            playBox?.isChecked = false
-        }
-
-        favoriteBox?.isChecked = if (isFavorite) true else favoriteContains(detailPosition)
+        favoriteBox?.isChecked =
+            if (isFavorite) true else favoriteContainsAudio(audioList[detailPosition])
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,89 +60,57 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
 
         detailPosition = savedInstanceState?.getInt("detailPosition") ?: detailPosition
 
+        val checkBoxSetListener = CheckBoxSetListener(this)
+        val checkBoxSetData = CheckBoxSetData(decoratorList)
+
         storage = Storage(requireContext().applicationContext)
 
-        updateData()
+        updateData(checkBoxSetData)
 
         playBox?.setOnClickListener {
-            val checkBox = it as CheckBox
-            if (!checkBox.isChecked) {
-                metaData = MetaData(detailPosition, PlaybackStatus.PAUSED, isFavorite)
-                callbackMetaData(metaData)
-                sendPauseAudio(metaData)
-            } else {
-                if (metaData.currentPosition == detailPosition) {
-                    metaData = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-                    callbackMetaData(metaData)
-                    sendResumeAudio(metaData)
-                } else {
-                    metaData = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-                    callbackMetaData(metaData)
-                    val list = if (isFavorite) getFavoriteList() ?: emptyList() else audioList
-                    sendPlayAudio(metaData, list)
-                }
-            }
+            checkBoxSetListener.setPlayListener(
+                playBox = it as CheckBox,
+                metaData = metaData,
+                curPos = detailPosition,
+                audioList = if (isFavorite) getFavoriteList() else audioList
+            )
         }
-
         favoriteBox?.setOnClickListener {
-            val checkBox = it as CheckBox
-            if (checkBox.isChecked) {
-                addToFavorite(detailPosition, audioList[detailPosition])
-            } else {
-                removeFromFavorite(audioList[detailPosition])
-                if (!favoriteIsNotEmpty()) {
-                    if(storage.readFavorite()) {
-                        sendStopAudio()
-                        callbackMetaData(MetaData())
-                    }
-                    if(isFavorite) navigate(HorizontalFragment())
-                } else {
-                    if ((playBox!!.isChecked || metaData.currentPosition == detailPosition)) {
-                        if(audioList.size-1 == detailPosition){
-                            val newMetaData = MetaData(0, PlaybackStatus.PLAYING, isFavorite)
-                            callbackMetaData(newMetaData)
-                          sendPlayAudio(newMetaData, audioList)
-                        } else {
-                            sendPlayAudio(metaData, audioList)
-                        }
-                        if(isFavorite) navigate(VerticalFragment.onInstance(isFavorite))
-                    } else {
-                        if(storage.readFavorite()) {
-                            callbackMetaData(MetaData())
-                            sendStopAudio()
-                        }
-                        if(isFavorite) navigate(VerticalFragment.onInstance(isFavorite))
-                    }
-                }
+            checkBoxSetListener.setFavoriteListener(
+                checkBox = it as CheckBox,
+                metaData1 = metaData,
+                curPos = detailPosition,
+                audioList = audioList,
+                storage = storage
+            )
+        }
+
+            prevImage?.setOnClickListener {
+                if (detailPosition == 0) detailPosition =
+                    decoratorList.size - 1 else detailPosition--
+                val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+                sendPlayAudio(newMeta, audioList)
+                callbackMetaData(newMeta)
+                updateData(checkBoxSetData)
             }
-            storage.writeFavoriteMap(getFavoriteMap() ?: emptyMap())
+
+            nextImage?.setOnClickListener {
+                if (detailPosition == decoratorList.size - 1) detailPosition =
+                    metaData.currentPosition + 1 else detailPosition++
+                val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+                sendPlayAudio(newMeta, audioList)
+                callbackMetaData(newMeta)
+                updateData(checkBoxSetData)
+            }
         }
 
-        prevImage?.setOnClickListener {
-            if(detailPosition==0) detailPosition = decoratorList.size-1 else detailPosition--
-            val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-            sendPlayAudio(newMeta, audioList)
-            callbackMetaData(newMeta)
-            updateData()
+        override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            outState.putInt("detailPosition", detailPosition)
         }
 
-        nextImage?.setOnClickListener {
-            if(detailPosition==decoratorList.size-1) detailPosition = metaData.currentPosition+1 else detailPosition++
-            val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-            sendPlayAudio(newMeta, audioList)
-            callbackMetaData(newMeta)
-            updateData()
+        override fun onBackPressed(): Boolean {
+            navigate(VerticalFragment.onInstance(isFavorite))
+            return true
         }
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("isFavorite", favoriteBox!!.isChecked)
-        outState.putInt("detailPosition", detailPosition)
-    }
-
-    override fun onBackPressed(): Boolean {
-        navigate(VerticalFragment.onInstance(isFavorite))
-        return true
-    }
-}

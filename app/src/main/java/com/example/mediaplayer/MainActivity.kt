@@ -11,10 +11,10 @@ import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.fragments.MenuFragment
-import com.example.mediaplayer.interfaces.myinnf.AudioSessionInteraction
-import com.example.mediaplayer.interfaces.myinnf.audiointeraction.AudioController
-import com.example.mediaplayer.interfaces.myinnf.navigation.FragmentBackPressed
-import com.example.mediaplayer.interfaces.myinnf.markers.SourceFragment
+import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.audiointeraction.AudioController
+import com.example.mediaplayer.interfaces.navigation.FragmentBackPressed
+import com.example.mediaplayer.interfaces.SourceFragment
 import com.example.mediaplayer.service.MediaPlayerService
 
 class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteraction {

@@ -3,10 +3,11 @@ package com.example.mediaplayer.service
 import android.media.MediaPlayer
 import android.util.Log
 import com.example.mediaplayer.data.PlaybackStatus
+import com.example.mediaplayer.data.Storage
 
 class AudioPlayerListener(
     private val notificationCreator: NotificationCreator,
-    private val audioSession: AudioSession,
+    private val audioSession: AudioSession
 ) : MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 

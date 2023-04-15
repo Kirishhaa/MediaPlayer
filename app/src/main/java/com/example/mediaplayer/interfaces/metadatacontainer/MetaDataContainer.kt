@@ -1,4 +1,4 @@
-package com.example.mediaplayer.interfaces.myinnf.metadatacontainer
+package com.example.mediaplayer.interfaces.metadatacontainer
 
 import com.example.mediaplayer.data.MetaData
 

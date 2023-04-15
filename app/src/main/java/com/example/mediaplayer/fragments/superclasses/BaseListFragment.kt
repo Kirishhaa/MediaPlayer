@@ -9,17 +9,11 @@ import com.example.mediaplayer.data.AudioEntity
 import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.fragments.CustomAdapterAudio
 import com.example.mediaplayer.interfaces.*
-import com.example.mediaplayer.interfaces.myinnf.datacontainer.AudioData
-import com.example.mediaplayer.interfaces.myinnf.audiointeraction.AudioController
-import com.example.mediaplayer.interfaces.myinnf.listcontainer.FavoriteListContainer
-import com.example.mediaplayer.interfaces.myinnf.navigation.FragmentBackPressed
-import com.example.mediaplayer.interfaces.myinnf.navigation.FragmentNavigator
-import com.example.mediaplayer.interfaces.myinnf.listcontainer.ListContainer
-import com.example.mediaplayer.interfaces.myinnf.markers.AudioAdapterListener
-import com.example.mediaplayer.interfaces.myinnf.markers.BaseListInteraction
-import com.example.mediaplayer.interfaces.myinnf.markers.SourceFragment
+import com.example.mediaplayer.interfaces.audiointeraction.AudioController
+import com.example.mediaplayer.interfaces.markers.BaseListInteraction
+import com.example.mediaplayer.interfaces.SourceFragment
 
-abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseListInteraction{
+abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseListInteraction {
     private var audioController: AudioController? = null
     private var sourceFragment: SourceFragment? = null
 
@@ -48,14 +42,7 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseL
         super.onViewCreated(view, savedInstanceState)
         isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
 
-        val meta = sourceFragment?.getMetaData()
-        if (meta != null) {
-            if ((isFavorite && meta.isFavorite) || (!isFavorite && !meta.isFavorite)) {
-                metaData = meta
-            }
-        } else {
-            metaData = MetaData()
-        }
+        metaData = sourceFragment?.getMetaData(isFavorite) ?: MetaData()
 
         audioList = if (isFavorite) {
             sourceFragment?.getFavoriteList()?.toList() ?: emptyList()
@@ -105,7 +92,13 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseL
         return sourceFragment?.getFavoriteMap() ?: emptyMap()
     }
 
+    override fun favoriteContainsAudio(audio: Audio): Boolean {
+        return sourceFragment?.favoriteContainsAudio(audio) == true
+    }
+
     override fun setList(songsList: List<Audio>, decoratorList: List<AudioEntity>) {
+        this.audioList = songsList
+        this.decoratorList = decoratorList
         adapter?.setAudioList(songsList, decoratorList)
     }
 
@@ -125,8 +118,8 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseL
         sourceFragment?.removeFromFavorite(audio)
     }
 
-    override fun favoriteContains(position: Int): Boolean {
-        return sourceFragment?.favoriteContains(position) == true
+    override fun favoriteContainsPosition(position: Int): Boolean {
+        return sourceFragment?.favoriteContainsPosition(position) == true
     }
 
     override fun favoriteIsNotEmpty(): Boolean {

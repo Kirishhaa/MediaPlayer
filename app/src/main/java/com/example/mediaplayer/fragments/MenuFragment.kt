@@ -12,8 +12,8 @@ import com.example.mediaplayer.data.AudioEntity
 import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.fragments.superclasses.BaseFragment
-import com.example.mediaplayer.interfaces.myinnf.markers.BaseListInteraction
-import com.example.mediaplayer.interfaces.myinnf.markers.SourceFragment
+import com.example.mediaplayer.interfaces.markers.BaseListInteraction
+import com.example.mediaplayer.interfaces.SourceFragment
 
 class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
     private val viewModel: AudioViewModel by lazy { ViewModelProvider(this)[AudioViewModel::class.java] }
@@ -43,12 +43,25 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
         viewModel.metaData.observe(viewLifecycleOwner) { songMetadata ->
             childFragmentManager.fragments.forEach { fragment ->
                 val curFragment = fragment as BaseListInteraction
-                if ((curFragment.getIsFavoriteState() && songMetadata.isFavorite) ||
-                    (!curFragment.getIsFavoriteState() && !songMetadata.isFavorite)
-                ) {
-                    fragment.setMetaData(songMetadata)
+                var allListMeta: MetaData? = null
+                var favoriteMeta: MetaData? = null
+                if (songMetadata.isFavorite) {
+                    allListMeta = MetaData(
+                        findPosInAllList(songMetadata.currentPosition),
+                        songMetadata.state,
+                        true
+                    )
                 } else {
-                    fragment.setMetaData(MetaData())
+                    favoriteMeta = MetaData(findPosIntFavoriteList(songMetadata.currentPosition),
+                    songMetadata.state,
+                    false)
+                }
+                if(!curFragment.getIsFavoriteState() && allListMeta!=null) {
+                    curFragment.setMetaData(allListMeta)
+                } else if(curFragment.getIsFavoriteState() && favoriteMeta!=null) {
+                    curFragment.setMetaData(favoriteMeta)
+                } else{
+                    curFragment.setMetaData(songMetadata)
                 }
             }
         }
@@ -92,8 +105,8 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
             .commit()
     }
 
-    override fun getMetaData(): MetaData {
-        return viewModel.metaData.value ?: MetaData()
+    override fun getMetaData(isFavoriteFragment: Boolean): MetaData {
+        return viewModel.getMetaData(isFavoriteFragment)
     }
 
     override fun getFavoriteList(): List<Audio> {
@@ -104,8 +117,8 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
         return viewModel.hashMapFavorite.value ?: emptyMap()
     }
 
-    override fun favoriteContains(position: Int): Boolean {
-        return viewModel.favoriteContains(position)
+    override fun favoriteContainsPosition(position: Int): Boolean {
+        return viewModel.favoriteContainsPosition(position)
     }
 
     override fun getAllList(): List<Audio> {
@@ -138,5 +151,17 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
 
     override fun getIsFavoriteState(): Boolean {
         return viewModel.getFavoriteState()
+    }
+
+    override fun favoriteContainsAudio(audio: Audio): Boolean {
+        return viewModel.favoriteContainsAudio(audio)
+    }
+
+    private fun findPosInAllList(position: Int): Int {
+        return viewModel.findPosInAllList(position)
+    }
+
+    private fun findPosIntFavoriteList(position: Int) : Int {
+        return viewModel.findPosInFavoriteList(position)
     }
 }

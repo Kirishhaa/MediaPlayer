@@ -78,8 +78,53 @@ class AudioViewModel : ViewModel() {
         return mutableMetaData.value?.isFavorite ?: false
     }
 
-    fun favoriteContains(position: Int): Boolean {
+    fun getMetaData(isFavoriteFragment: Boolean): MetaData {
+        val curMetaData = mutableMetaData.value ?: MetaData()
+        if(isFavoriteFragment) {
+            if(curMetaData.isFavorite) {
+                return curMetaData
+            } else {
+                return MetaData(findPosInFavoriteList(curMetaData.currentPosition),
+                    curMetaData.state,
+                    curMetaData.isFavorite)
+            }
+        } else {
+            if(!curMetaData.isFavorite) {
+                return curMetaData
+            } else {
+                return MetaData(findPosInAllList(curMetaData.currentPosition),
+                curMetaData.state,
+                curMetaData.isFavorite)
+            }
+        }
+    }
+
+    fun favoriteContainsPosition(position: Int): Boolean {
         return mutableHashMapFavorite.value?.contains(position) == true
+    }
+
+    fun favoriteContainsAudio(audio: Audio): Boolean {
+        return mutableHashMapFavorite.value?.containsValue(audio) == true
+    }
+
+    fun findPosInAllList(position: Int) : Int {
+        var counter = 0
+        mutableHashMapFavorite.value?.forEach {
+            if(counter==position) return it.key
+            counter++
+        }
+        return -1
+    }
+
+    fun findPosInFavoriteList(position: Int) : Int {
+        var counter = 0
+        mutableHashMapFavorite.value?.forEach {
+            if(it.key==position) {
+                return counter
+            }
+            counter++
+        }
+        return -1
     }
 
     private fun loadData() {

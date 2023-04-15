@@ -12,7 +12,7 @@ import com.example.mediaplayer.R
 import com.example.mediaplayer.data.AudioDecoder
 import com.example.mediaplayer.data.MetaData
 import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.interfaces.myinnf.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.AudioSessionInteraction
 
 class AudioSession(
     private val context: Context,

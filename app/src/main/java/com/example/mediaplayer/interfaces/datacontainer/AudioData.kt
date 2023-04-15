@@ -1,4 +1,4 @@
-package com.example.mediaplayer.interfaces.myinnf.datacontainer
+package com.example.mediaplayer.interfaces.datacontainer
 
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.AudioEntity

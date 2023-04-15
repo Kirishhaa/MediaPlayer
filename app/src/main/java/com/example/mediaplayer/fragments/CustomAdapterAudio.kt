@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.*
-import com.example.mediaplayer.interfaces.myinnf.markers.AudioAdapterListener
+import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 
 class CustomAdapterAudio(
     private val listener: AudioAdapterListener,
@@ -21,6 +21,8 @@ class CustomAdapterAudio(
     private var metadata: MetaData = MetaData()
     private var audioList: List<Audio> = emptyList()
     private var decoratorList: List<AudioEntity> = emptyList()
+    private val checkBoxSetListener = CheckBoxSetListener(listener)
+    private val checkBoxSetData = CheckBoxSetData()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = when (type) {
@@ -36,18 +38,12 @@ class CustomAdapterAudio(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        if(decoratorList[position].bitmap!=null) {
-            holder.artImage.setImageBitmap(decoratorList[position].bitmap)
-        } else {
-            holder.artImage.setImageResource(R.drawable.ic_empty_music_card)
-        }
-        holder.title.text = decoratorList[position].title
-
-        if (metadata.state == PlaybackStatus.PLAYING) {
-            holder.playBox.isChecked = metadata.currentPosition == position
-        } else {
-            holder.playBox.isChecked = false
-        }
+        checkBoxSetData.setData(
+            imageArt = holder.artImage,
+            title = holder.title,
+            playBox = holder.playBox,
+            curPos = position,
+            metaData = metadata)
 
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
@@ -56,27 +52,14 @@ class CustomAdapterAudio(
         }
 
         holder.playBox.setOnClickListener {
-            val checkBox = it as CheckBox
-            if (!checkBox.isChecked) {
-                metadata =
-                    MetaData(position, PlaybackStatus.PAUSED, listener.getIsFavoriteState())
-                listener.callbackMetaData(metadata)
-                listener.sendPauseAudio(metadata)
-            } else {
-                if (metadata.currentPosition == position) {
-                    metadata = MetaData(position, PlaybackStatus.PLAYING, listener.getIsFavoriteState())
-                    listener.callbackMetaData(metadata)
-                    listener.sendResumeAudio(metadata)
-                } else {
-                    val prevPos = metadata.currentPosition
-                    metadata = MetaData(position, PlaybackStatus.PLAYING, listener.getIsFavoriteState())
-                    if (prevPos != -1) {
-                        notifyItemChanged(prevPos)
-                    }
-                    listener.callbackMetaData(metadata)
-                    listener.sendPlayAudio(metadata, audioList)
-                }
-            }
+
+            val prevPos = checkBoxSetListener.setPlayListener(
+                playBox = it as CheckBox,
+                metaData = metadata,
+                curPos = position,
+                audioList = audioList)
+
+            if(prevPos!=-1) notifyItemChanged(prevPos)
         }
     }
 
@@ -91,6 +74,7 @@ class CustomAdapterAudio(
     @SuppressLint("NotifyDataSetChanged")
     fun setAudioList(audioList: List<Audio>, decoratorList: List<AudioEntity>) {
         this.decoratorList = decoratorList
+        checkBoxSetData.setDecoratorList(decoratorList)
         this.audioList = audioList
         notifyDataSetChanged()
     }

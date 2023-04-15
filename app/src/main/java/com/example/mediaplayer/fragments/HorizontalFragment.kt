@@ -26,6 +26,8 @@ class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_music_list_horizontal)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.HORIZONTAL)
+
+
         setList(audioList, decoratorList)
         setMetaData(metaData)
         recycler.adapter = adapter

@@ -7,7 +7,7 @@ import android.os.IBinder
 import com.example.mediaplayer.data.PlaybackStatus
 import com.example.mediaplayer.registrar.Registrar
 import com.example.mediaplayer.data.Storage
-import com.example.mediaplayer.interfaces.myinnf.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.AudioSessionInteraction
 
 class MediaPlayerService : Service() {
 

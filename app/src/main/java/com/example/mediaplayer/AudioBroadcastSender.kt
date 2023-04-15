@@ -8,6 +8,12 @@ class AudioBroadcastSender {
 
     companion object {
         const val BROADCAST_PLAY_NEW_AUDIO = "play_audio_changed_by_user"
+        const val BROADCAST_CHANGE_TO_ALL_AUDIO = "change_to_all_audio"
+    }
+
+    fun changeToAllAudioList(context: Context) {
+        val broadcastIntent = Intent(BROADCAST_CHANGE_TO_ALL_AUDIO)
+        context.sendBroadcast(broadcastIntent)
     }
 
     fun sendPlayAudio(context: Context) {

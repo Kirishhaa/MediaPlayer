@@ -1,4 +1,4 @@
-package com.example.mediaplayer.interfaces.myinnf.audiointeraction
+package com.example.mediaplayer.interfaces.audiointeraction
 
 import com.example.mediaplayer.data.Audio
 import com.example.mediaplayer.data.MetaData
