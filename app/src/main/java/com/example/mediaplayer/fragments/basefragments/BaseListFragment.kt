@@ -4,10 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.example.mediaplayer.data.models.Audio
-import com.example.mediaplayer.data.models.AudioEntity
-import com.example.mediaplayer.data.models.MetaData
-import com.example.mediaplayer.data.datacontroller.DataController
+import com.example.mediaplayer.models.Audio
+import com.example.mediaplayer.models.AudioEntity
+import com.example.mediaplayer.models.MetaData
+import com.example.mediaplayer.dataoperations.datacontroller.DataController
 import com.example.mediaplayer.fragments.CustomAdapterAudio
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
@@ -70,7 +70,7 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
     }
 
     override fun setMetaData(metadata: MetaData) {
-        adapter?.setSongMetadata(metadata)
+        adapter?.setMetaData(metadata)
     }
 
     override fun getFavoriteMap(): Map<Int, Audio> {

@@ -3,7 +3,7 @@ package com.example.mediaplayer.fragments
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.storageutils.Storage
 import com.example.mediaplayer.fragments.listfragments.HorizontalFragment
 import com.example.mediaplayer.interfaces.navigation.FragmentNavigator
 

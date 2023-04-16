@@ -7,10 +7,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.*
-import com.example.mediaplayer.data.models.Audio
-import com.example.mediaplayer.data.models.AudioEntity
-import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.storageutils.Storage
+import com.example.mediaplayer.models.Audio
+import com.example.mediaplayer.models.AudioEntity
+import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.fragments.basefragments.BaseFragment
 import com.example.mediaplayer.fragments.listfragments.HorizontalFragment
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
@@ -26,7 +26,7 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
         super.onViewCreated(view, savedInstanceState)
         storage = Storage(requireContext().applicationContext)
         navigator = FragmentNavigatorImpl(childFragmentManager, storage)
-        viewModel.initialize(storage.readAllAudioList(),storage.readFavoriteMap())
+        viewModel.initialize(storage.readAllAudioList(), storage.readFavoriteMap())
 
         if (savedInstanceState == null) {
             navigator.navigate(HorizontalFragment())
@@ -56,30 +56,30 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
         }
     }
 
+    //NAVIGATOR
     override fun navigate(fragment: Fragment) {
         navigator.navigate(fragment)
     }
 
+    //METADATA
     override fun getMetaData(isFavoriteFragment: Boolean): MetaData {
         return viewModel.getMetaData(isFavoriteFragment)
     }
 
+    override fun updateMetaData(metadata: MetaData) {
+        viewModel.updateAllListMetaData(MetaData(metadata))
+    }
+
+    //LISTS
     override fun getFavoriteList(): List<Audio> {
         return viewModel.hashMapFavorite.value?.values?.toList() ?: emptyList()
-    }
-
-    override fun getFavoriteMap(): Map<Int, Audio> {
-        return viewModel.hashMapFavorite.value ?: emptyMap()
-    }
-
-    override fun favoriteContainsPosition(position: Int): Boolean {
-        return viewModel.favoriteContainsPosition(position)
     }
 
     override fun getAllList(): List<Audio> {
         return viewModel.allAudioList.value ?: emptyList()
     }
 
+    //DECORATORS
     override fun getAllDecorator(): List<AudioEntity> {
         return viewModel.allListDecorator.value ?: emptyList()
     }
@@ -88,16 +88,17 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
         return viewModel.favoriteDecorator.value ?: emptyList()
     }
 
+    //FAVORITE OBJECT
+    override fun getFavoriteMap(): Map<Int, Audio> {
+        return viewModel.hashMapFavorite.value ?: emptyMap()
+    }
+
     override fun addToFavorite(position: Int, audio: Audio) {
         viewModel.addToFavoriteList(position, audio)
     }
 
     override fun removeFromFavorite(audio: Audio) {
         viewModel.removeFromFavoriteList(audio)
-    }
-
-    override fun updateMetaData(metadata: MetaData) {
-        viewModel.updateAllListMetaData(MetaData(metadata))
     }
 
     override fun favoriteIsNotEmpty(): Boolean {
@@ -110,5 +111,9 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
 
     override fun favoriteContainsAudio(audio: Audio): Boolean {
         return viewModel.favoriteContainsAudio(audio)
+    }
+
+    override fun favoriteContainsPosition(position: Int): Boolean {
+        return viewModel.favoriteContainsPosition(position)
     }
 }

@@ -9,14 +9,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.*
-import com.example.mediaplayer.data.models.Audio
-import com.example.mediaplayer.data.models.AudioEntity
-import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.dataoperations.*
+import com.example.mediaplayer.models.Audio
+import com.example.mediaplayer.models.AudioEntity
+import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.fragments.listfragments.DetailFragment
 import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
-import com.example.mediaplayer.xml.XMLAudioDecorator
-import com.example.mediaplayer.xml.XMLListenerSetter
+import com.example.mediaplayer.dataoperations.xml.XMLAudioDecorator
+import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
 
 class CustomAdapterAudio(
     private val listener: AudioAdapterListener,
@@ -49,11 +49,17 @@ class CustomAdapterAudio(
             playBox = holder.playBox,
             curPos = position,
             metaData = metadata,
-            audioList = audioList)
+            audioList = audioList
+        )
 
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
-                listener.navigate(DetailFragment.onInstance(position, listener.getIsFavoriteState()))
+                listener.navigate(
+                    DetailFragment.onInstance(
+                        position,
+                        listener.getIsFavoriteState()
+                    )
+                )
             }
         }
 
@@ -63,13 +69,14 @@ class CustomAdapterAudio(
                 playBox = it as CheckBox,
                 metaData = metadata,
                 curPos = position,
-                audioList = audioList)
+                audioList = audioList
+            )
 
-            if(prevPos!=-1) notifyItemChanged(prevPos)
+            if (prevPos != -1) notifyItemChanged(prevPos)
         }
     }
 
-    fun setSongMetadata(metadata: MetaData) {
+    fun setMetaData(metadata: MetaData) {
         if (this.metadata.currentPosition != -1) {
             notifyItemChanged(this.metadata.currentPosition)
         }

@@ -6,12 +6,12 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.*
-import com.example.mediaplayer.data.models.MetaData
-import com.example.mediaplayer.data.models.PlaybackStatus
+import com.example.mediaplayer.storageutils.Storage
+import com.example.mediaplayer.models.MetaData
+import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.fragments.basefragments.BaseListFragment
-import com.example.mediaplayer.xml.XMLAudioDecorator
-import com.example.mediaplayer.xml.XMLListenerSetter
+import com.example.mediaplayer.dataoperations.xml.XMLAudioDecorator
+import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
 
 class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
 
@@ -45,8 +45,8 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
         }
     }
 
-    private fun updateData(XMLAudioDecorator: XMLAudioDecorator) {
-        XMLAudioDecorator.setData(
+    private fun updateData(xmlAudioDecorator: XMLAudioDecorator) {
+        xmlAudioDecorator.setData(
             imageArt = imageArt,
             title = title,
             playBox = playBox,
@@ -88,33 +88,33 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
             )
         }
 
-            prevImage?.setOnClickListener {
-                if (detailPosition == 0) detailPosition =
-                    decoratorList.size - 1 else detailPosition--
-                val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-                sendPlayAudio(newMeta, audioList)
-                callbackMetaData(newMeta)
-                updateData(xmlAudioDecorator)
-            }
-
-            nextImage?.setOnClickListener {
-                if (detailPosition == decoratorList.size - 1) detailPosition =
-                    metaData.currentPosition + 1 else detailPosition++
-                val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
-                sendPlayAudio(newMeta, audioList)
-                callbackMetaData(newMeta)
-                updateData(xmlAudioDecorator)
-            }
+        prevImage?.setOnClickListener {
+            if (detailPosition == 0) detailPosition =
+                decoratorList.size - 1 else detailPosition--
+            val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+            sendPlayAudio(newMeta, audioList)
+            callbackMetaData(newMeta)
+            updateData(xmlAudioDecorator)
         }
 
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putInt("detailPosition", detailPosition)
-            outState.putBoolean("isFavorite", isFavorite)
-        }
-
-        override fun onBackPressed(): Boolean {
-            navigate(VerticalFragment.onInstance(isFavorite))
-            return true
+        nextImage?.setOnClickListener {
+            if (detailPosition == decoratorList.size - 1) detailPosition =
+                metaData.currentPosition + 1 else detailPosition++
+            val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
+            sendPlayAudio(newMeta, audioList)
+            callbackMetaData(newMeta)
+            updateData(xmlAudioDecorator)
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("detailPosition", detailPosition)
+        outState.putBoolean("isFavorite", isFavorite)
+    }
+
+    override fun onBackPressed(): Boolean {
+        navigate(VerticalFragment.onInstance(isFavorite))
+        return true
+    }
+}

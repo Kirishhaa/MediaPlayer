@@ -4,11 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mediaplayer.data.*
-import com.example.mediaplayer.data.models.Audio
-import com.example.mediaplayer.data.models.AudioEntity
-import com.example.mediaplayer.data.models.MetaData
-import com.example.mediaplayer.data.datacontroller.DataController
+import com.example.mediaplayer.dataoperations.AudioDecoder
+import com.example.mediaplayer.repository.Repository
+import com.example.mediaplayer.models.Audio
+import com.example.mediaplayer.models.AudioEntity
+import com.example.mediaplayer.models.MetaData
+import com.example.mediaplayer.dataoperations.datacontroller.DataController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

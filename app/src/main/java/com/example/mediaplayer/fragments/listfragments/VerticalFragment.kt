@@ -10,7 +10,7 @@ import com.example.mediaplayer.fragments.basefragments.BaseListFragment
 
 class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
-    companion object{
+    companion object {
         fun onInstance(isFavorite: Boolean): VerticalFragment {
             val verticalFragment = VerticalFragment()
             verticalFragment.isFavorite = isFavorite

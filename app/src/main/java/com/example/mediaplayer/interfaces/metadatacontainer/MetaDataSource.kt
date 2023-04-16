@@ -1,6 +1,6 @@
 package com.example.mediaplayer.interfaces.metadatacontainer
 
-import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.models.MetaData
 
 interface MetaDataSource {
     fun getMetaData(isFavoriteFragment: Boolean): MetaData

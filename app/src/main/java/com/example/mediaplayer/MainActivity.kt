@@ -2,15 +2,17 @@ package com.example.mediaplayer
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mediaplayer.data.models.Audio
-import com.example.mediaplayer.data.models.MetaData
-import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.eventcontroller.PermissionsHandler
+import com.example.mediaplayer.models.Audio
+import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.fragments.MenuFragment
-import com.example.mediaplayer.intents.IntentsHandler
+import com.example.mediaplayer.eventcontroller.intents.IntentsHandler
 import com.example.mediaplayer.interfaces.AudioServiceCallback
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.metadatacontainer.MetaDataSource
 import com.example.mediaplayer.interfaces.navigation.FragmentBackPressed
+import com.example.mediaplayer.service.ServiceWorker
+import com.example.mediaplayer.storageutils.Storage
 
 class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback {
 
