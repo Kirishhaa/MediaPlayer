@@ -1,4 +1,4 @@
-package com.example.mediaplayer.interfaces
+package com.example.mediaplayer.interfaces.markers
 
 import com.example.mediaplayer.interfaces.FavoriteObject
 import com.example.mediaplayer.interfaces.listcontainer.AllListContainer

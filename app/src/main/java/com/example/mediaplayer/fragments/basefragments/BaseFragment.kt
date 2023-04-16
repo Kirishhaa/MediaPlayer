@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments.superclasses
+package com.example.mediaplayer.fragments.basefragments
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,6 +1,6 @@
 package com.example.mediaplayer.interfaces
 
-import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.models.Audio
 
 interface FavoriteObject {
     fun getFavoriteMap() : Map<Int, Audio>

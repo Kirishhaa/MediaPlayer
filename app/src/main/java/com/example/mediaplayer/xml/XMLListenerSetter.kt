@@ -1,11 +1,15 @@
-package com.example.mediaplayer.data
+package com.example.mediaplayer.xml
 
 import android.widget.CheckBox
-import com.example.mediaplayer.fragments.HorizontalFragment
-import com.example.mediaplayer.fragments.VerticalFragment
+import com.example.mediaplayer.data.models.Audio
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.data.models.PlaybackStatus
+import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.fragments.listfragments.HorizontalFragment
+import com.example.mediaplayer.fragments.listfragments.VerticalFragment
 import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 
-class CheckBoxSetListener(private val listener: AudioAdapterListener) {
+class XMLListenerSetter(private val listener: AudioAdapterListener) {
 
     fun setPlayListener(
         playBox: CheckBox,

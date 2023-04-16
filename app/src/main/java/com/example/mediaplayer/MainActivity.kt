@@ -1,53 +1,31 @@
 package com.example.mediaplayer
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.MetaData
+import com.example.mediaplayer.data.models.Audio
+import com.example.mediaplayer.data.models.MetaData
 import com.example.mediaplayer.data.Storage
 import com.example.mediaplayer.fragments.MenuFragment
-import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.intents.IntentsHandler
+import com.example.mediaplayer.interfaces.AudioServiceCallback
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
+import com.example.mediaplayer.interfaces.metadatacontainer.MetaDataSource
 import com.example.mediaplayer.interfaces.navigation.FragmentBackPressed
-import com.example.mediaplayer.interfaces.SourceFragment
-import com.example.mediaplayer.service.MediaPlayerService
 
-class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteraction {
+class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback {
 
-    private lateinit var musicService: MediaPlayerService
     private lateinit var storage: Storage
-
-    private var boundService = false
-
-    private val audioBroadcastSender = AudioBroadcastSender()
-
+    private lateinit var serviceWorker: ServiceWorker
+    private val intentsHandler = IntentsHandler()
     private val permissionsHandler = PermissionsHandler()
-
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as MediaPlayerService.LocalBinder
-            musicService = binder.getService(this@MainActivity)
-            boundService = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            boundService = false
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         storage = Storage(applicationContext)
-
-        boundService = savedInstanceState?.getBoolean("isBound") ?: false
-
+        serviceWorker = ServiceWorker(this, intentsHandler)
+        serviceWorker.boundService = savedInstanceState?.getBoolean("isBound") ?: false
         permissionsHandler.requestPermissions(this)
 
         if (savedInstanceState == null) {
@@ -60,7 +38,7 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean("isBound", boundService)
+        outState.putBoolean("isBound", serviceWorker.boundService)
     }
 
     override fun playAudio(
@@ -76,25 +54,19 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
         } else {
             storage.writeAllAudioList(audioList)
         }
-        if (!boundService) {
-            val intent = Intent(this, MediaPlayerService::class.java)
-            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-            startService(intent)
-        } else {
-            audioBroadcastSender.sendPlayAudio(this)
-        }
+        serviceWorker.sendIntentsToService(this)
     }
 
     override fun resumeAudio() {
-        audioBroadcastSender.sendResumeAudio(this)
+        intentsHandler.sendResumeAudio(this)
     }
 
     override fun pauseAudio() {
-        audioBroadcastSender.sendPauseAudio(this)
+        intentsHandler.sendPauseAudio(this)
     }
 
     override fun stopAudio() {
-        audioBroadcastSender.sendStopAudio(this)
+        intentsHandler.sendStopAudio(this)
     }
 
     override fun onBackPressed() {
@@ -109,8 +81,7 @@ class MainActivity : AppCompatActivity(), AudioController, AudioSessionInteracti
 
     override fun getMetaDataFromService(metadata: MetaData) {
         supportFragmentManager.fragments.getOrNull(0)?.let {
-            (it as SourceFragment).updateMetaData(metadata)
+            (it as MetaDataSource).updateMetaData(metadata)
         }
     }
-
 }

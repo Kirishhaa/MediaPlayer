@@ -3,17 +3,25 @@ package com.example.mediaplayer.service
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
-import com.example.mediaplayer.data.Audio
+import com.example.mediaplayer.data.models.Audio
 import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.data.datacontroller.DataController
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.data.models.PlaybackStatus
+import com.example.mediaplayer.interfaces.AudioServiceCallback
 import kotlin.properties.Delegates
 
 class AudioPlayer(
-    private val storage: Storage,
+    private val storage: Storage
 ) : MediaPlayer() {
+
+    private val dataController = DataController()
+
+    private lateinit var audioServiceCallback: AudioServiceCallback
+    private lateinit var audioPlayerListener: AudioPlayerListener
     var audioList: List<Audio>
-    private set
-    private lateinit var listener: AudioPlayerListener
-    lateinit var currentAudio: Audio
+        private set
+    var currentAudio: Audio
         private set
     var currentIndex = -1
         private set
@@ -23,24 +31,18 @@ class AudioPlayer(
     init {
         currentIndex = storage.readIndex()
         isFavorite = storage.readFavorite()
-        audioList = if (storage.readFavorite()) {
-            storage.readFavoriteMap().values.toList()
-        } else {
-            storage.readAllAudioList()
-        }
-        if (currentIndex != -1 && currentIndex < audioList.size) {
-            currentAudio = audioList[currentIndex]
-        }
+        audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
+        currentAudio = dataController.dso.setStartedCurrentAudio(currentIndex, audioList)
     }
 
-    fun changeToAllAudioList() {
-        currentIndex =storage.readIndex()
-        audioList = storage.readAllAudioList()
-        isFavorite = false
+    fun setServiceCallback(obj: AudioServiceCallback) {
+        this.audioServiceCallback = obj
     }
 
     fun initialize(listener: AudioPlayerListener) {
-        this.listener = listener
+        reset()
+
+        this.audioPlayerListener = listener
 
         setOnErrorListener(listener)
         setOnPreparedListener(listener)
@@ -50,12 +52,11 @@ class AudioPlayer(
             currentAudio = audioList[currentIndex]
         }
 
-        reset()
-
         setAudioStreamType(AudioManager.STREAM_MUSIC)
         try {
             setDataSource(currentAudio.path)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             Log.d("AudioPlayer", "dataSource for currentAudio isn't right")
         }
 
@@ -65,79 +66,73 @@ class AudioPlayer(
     fun playAudio() {
         if (!isPlaying) {
             start()
+            callbackAudioPlayerInteraction()
         }
     }
 
     fun playNextAudio() {
         isFavorite = storage.readFavorite()
-        audioList =
-            if (storage.readFavorite()) {
-                storage.readFavoriteMap().values.toList()
-            } else {
-                storage.readAllAudioList()
-            }
-        if (currentIndex == audioList.size - 1) {
-            currentIndex = 0
-        } else currentIndex++
-        storage.writeIndex(currentIndex)
+        audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
+        currentIndex = dataController.dso.setNextIndexInRangeAudioList(currentIndex, audioList)
         currentAudio = audioList[currentIndex]
+        storage.writeIndex(currentIndex)
         stopAudio()
         reset()
-        initialize(listener)
+        initialize(audioPlayerListener)
+        callbackAudioPlayerInteraction()
     }
 
     fun playPrevAudio() {
         isFavorite = storage.readFavorite()
-        audioList =
-            if (storage.readFavorite()) {
-                storage.readFavoriteMap().values.toList()
-            } else {
-                storage.readAllAudioList()
-            }
-        if (currentIndex == 0) {
-            currentIndex = audioList.size - 1
-        } else currentIndex--
-        storage.writeIndex(currentIndex)
+        audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
+        currentIndex = dataController.dso.setPreviousIndexInRangeAudioList(currentIndex, audioList)
         currentAudio = audioList[currentIndex]
+        storage.writeIndex(currentIndex)
         stopAudio()
         reset()
-        initialize(listener)
+        initialize(audioPlayerListener)
+        callbackAudioPlayerInteraction()
+    }
+
+    private fun callbackAudioPlayerInteraction() {
+        audioServiceCallback.getMetaDataFromService(
+            MetaData(
+                currentIndex,
+                if(isPlaying) PlaybackStatus.PLAYING else PlaybackStatus.PAUSED,
+                isFavorite
+            )
+        )
     }
 
     fun stopAudio() {
         if (isPlaying) {
             stop()
+            callbackAudioPlayerInteraction()
         }
     }
 
     fun pauseAudio() {
         if (isPlaying) {
             pause()
+            callbackAudioPlayerInteraction()
         }
     }
 
     fun resumeAudio() {
         if (!isPlaying) {
             start()
+            callbackAudioPlayerInteraction()
         }
     }
 
     fun playNewAudio() {
-        currentIndex = storage.readIndex()
         isFavorite = storage.readFavorite()
-        audioList =
-            if (storage.readFavorite()) {
-                storage.readFavoriteMap().values.toList()
-            } else {
-                storage.readAllAudioList()
-            }
-        if (currentIndex == -1 || currentIndex >= audioList.size) {
-            Log.d("AudioPlayer", "cuurent index == -1 or < than audioList.size")
-        } else {
-            currentAudio = audioList[currentIndex]
-        }
+        audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
+        currentIndex = storage.readIndex()
+        currentAudio = dataController.dso.setStartedCurrentAudio(currentIndex, audioList)
         stopAudio()
         reset()
-        initialize(listener)
+        initialize(audioPlayerListener)
+        callbackAudioPlayerInteraction()
     }
 }

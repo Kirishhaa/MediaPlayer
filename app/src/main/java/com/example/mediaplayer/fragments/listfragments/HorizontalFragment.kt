@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.listfragments
 
 import android.os.Bundle
 import android.view.View
@@ -6,8 +6,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.data.MetaData
-import com.example.mediaplayer.fragments.superclasses.BaseListFragment
+import com.example.mediaplayer.fragments.CustomAdapterAudio
+import com.example.mediaplayer.fragments.basefragments.BaseListFragment
 
 class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
 

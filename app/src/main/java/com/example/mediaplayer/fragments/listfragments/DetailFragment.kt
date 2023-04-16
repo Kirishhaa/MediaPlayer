@@ -1,14 +1,17 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.listfragments
 
 import android.os.Bundle
 import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.navigation.fragment.findNavController
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.*
-import com.example.mediaplayer.fragments.superclasses.BaseListFragment
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.data.models.PlaybackStatus
+import com.example.mediaplayer.fragments.basefragments.BaseListFragment
+import com.example.mediaplayer.xml.XMLAudioDecorator
+import com.example.mediaplayer.xml.XMLListenerSetter
 
 class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
 
@@ -42,33 +45,33 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
         }
     }
 
-    private fun updateData(checkBoxSetData: CheckBoxSetData) {
-        checkBoxSetData.setData(
+    private fun updateData(XMLAudioDecorator: XMLAudioDecorator) {
+        XMLAudioDecorator.setData(
             imageArt = imageArt,
             title = title,
             playBox = playBox,
+            favoriteBox = favoriteBox,
             curPos = detailPosition,
-            metaData = metaData
+            metaData = metaData,
+            audioList = audioList
         )
-
-        favoriteBox?.isChecked =
-            if (isFavorite) true else favoriteContainsAudio(audioList[detailPosition])
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         detailPosition = savedInstanceState?.getInt("detailPosition") ?: detailPosition
+        isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
 
-        val checkBoxSetListener = CheckBoxSetListener(this)
-        val checkBoxSetData = CheckBoxSetData(decoratorList)
+        val xmlListenerSetter = XMLListenerSetter(this)
+        val xmlAudioDecorator = XMLAudioDecorator(decoratorList, this)
 
         storage = Storage(requireContext().applicationContext)
 
-        updateData(checkBoxSetData)
+        updateData(xmlAudioDecorator)
 
         playBox?.setOnClickListener {
-            checkBoxSetListener.setPlayListener(
+            xmlListenerSetter.setPlayListener(
                 playBox = it as CheckBox,
                 metaData = metaData,
                 curPos = detailPosition,
@@ -76,7 +79,7 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
             )
         }
         favoriteBox?.setOnClickListener {
-            checkBoxSetListener.setFavoriteListener(
+            xmlListenerSetter.setFavoriteListener(
                 checkBox = it as CheckBox,
                 metaData1 = metaData,
                 curPos = detailPosition,
@@ -91,7 +94,7 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
                 val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
                 sendPlayAudio(newMeta, audioList)
                 callbackMetaData(newMeta)
-                updateData(checkBoxSetData)
+                updateData(xmlAudioDecorator)
             }
 
             nextImage?.setOnClickListener {
@@ -100,13 +103,14 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
                 val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
                 sendPlayAudio(newMeta, audioList)
                 callbackMetaData(newMeta)
-                updateData(checkBoxSetData)
+                updateData(xmlAudioDecorator)
             }
         }
 
         override fun onSaveInstanceState(outState: Bundle) {
             super.onSaveInstanceState(outState)
             outState.putInt("detailPosition", detailPosition)
+            outState.putBoolean("isFavorite", isFavorite)
         }
 
         override fun onBackPressed(): Boolean {

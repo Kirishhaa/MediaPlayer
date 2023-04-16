@@ -5,9 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
-import com.example.mediaplayer.AudioBroadcastSender
-import com.example.mediaplayer.MainActivity
-import com.example.mediaplayer.data.PlaybackStatus
+import com.example.mediaplayer.intents.AudioBroadcastSender
+import com.example.mediaplayer.data.models.PlaybackStatus
 import com.example.mediaplayer.service.AudioPlayer
 import com.example.mediaplayer.service.AudioSession
 import com.example.mediaplayer.service.MediaPlayerService

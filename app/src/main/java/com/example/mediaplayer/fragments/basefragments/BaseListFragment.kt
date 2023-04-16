@@ -1,30 +1,24 @@
-package com.example.mediaplayer.fragments.superclasses
+package com.example.mediaplayer.fragments.basefragments
 
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.example.mediaplayer.data.Audio
-import com.example.mediaplayer.data.AudioEntity
-import com.example.mediaplayer.data.MetaData
+import com.example.mediaplayer.data.models.Audio
+import com.example.mediaplayer.data.models.AudioEntity
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.data.datacontroller.DataController
 import com.example.mediaplayer.fragments.CustomAdapterAudio
-import com.example.mediaplayer.interfaces.*
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
-import com.example.mediaplayer.interfaces.SourceFragment
+import com.example.mediaplayer.interfaces.markers.SourceFragment
 
-abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseListInteraction {
+abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), BaseListInteraction {
     private var audioController: AudioController? = null
     private var sourceFragment: SourceFragment? = null
+    private val dataController = DataController()
 
-    @Suppress("INAPPLICABLE_JVM_NAME")
-    @set:JvmName("songMetaDataField")
-    @get:JvmName("songMetaDataField")
-    override var metaData: MetaData = MetaData()
-    override var audioList: List<Audio> = emptyList()
-    override var decoratorList: List<AudioEntity> = emptyList()
     protected var adapter: CustomAdapterAudio? = null
-    override var isFavorite = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -40,20 +34,11 @@ abstract class BaseListFragment(resLayout: Int) : BaseFragment(resLayout), BaseL
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
-
-        metaData = sourceFragment?.getMetaData(isFavorite) ?: MetaData()
-
-        audioList = if (isFavorite) {
-            sourceFragment?.getFavoriteList()?.toList() ?: emptyList()
-        } else {
-            sourceFragment?.getAllList() ?: emptyList()
-        }
-
-        decoratorList = if (isFavorite) {
-            sourceFragment?.getFavoriteDecorator() ?: emptyList()
-        } else {
-            sourceFragment?.getAllDecorator() ?: emptyList()
+        dataController.dso.run {
+            isFavorite = setStartedIsFavorite(isFavorite, savedInstanceState)
+            metaData = setStartedMetaData(sourceFragment, isFavorite)
+            audioList = setStartedAudioList(sourceFragment, isFavorite)
+            decoratorList = setStartedDecoratorList(sourceFragment, isFavorite)
         }
     }
 

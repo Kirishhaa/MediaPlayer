@@ -1,7 +1,7 @@
 package com.example.mediaplayer.interfaces
 
-import com.example.mediaplayer.data.MetaData
+import com.example.mediaplayer.data.models.MetaData
 
-interface AudioSessionInteraction {
+interface AudioServiceCallback {
     fun getMetaDataFromService(metadata: MetaData)
 }

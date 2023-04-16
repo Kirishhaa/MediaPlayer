@@ -1,6 +1,6 @@
 package com.example.mediaplayer.interfaces.metadatacontainer
 
-import com.example.mediaplayer.data.MetaData
+import com.example.mediaplayer.data.models.MetaData
 
 interface MetaDataContainer {
     fun setMetaData(metadata: MetaData)

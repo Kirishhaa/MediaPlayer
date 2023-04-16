@@ -1,4 +1,4 @@
-package com.example.mediaplayer.data
+package com.example.mediaplayer.data.models
 
 data class MetaData(
     val currentPosition: Int = -1,

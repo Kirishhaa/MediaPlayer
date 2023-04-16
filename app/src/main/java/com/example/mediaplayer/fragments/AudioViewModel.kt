@@ -5,6 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer.data.*
+import com.example.mediaplayer.data.models.Audio
+import com.example.mediaplayer.data.models.AudioEntity
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.data.datacontroller.DataController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +25,7 @@ class AudioViewModel : ViewModel() {
     val allListDecorator: LiveData<List<AudioEntity>> = mutableAllListDecorator
     private val mutableFavoriteDecorator = MutableLiveData<List<AudioEntity>>()
     val favoriteDecorator: LiveData<List<AudioEntity>> = mutableFavoriteDecorator
+    private val dataController = DataController()
 
     fun initialize(readAllAudioList: List<Audio>, readFavoriteMap: LinkedHashMap<Int, Audio>) {
         if (readAllAudioList.isEmpty()) {
@@ -43,88 +48,42 @@ class AudioViewModel : ViewModel() {
         mutableMetaData.value = metaData
     }
 
-    fun addToFavoriteSet(position: Int, audio: Audio) {
-        mutableHashMapFavorite.value?.put(position, audio)
-        val newValue = AudioDecoder.getAudioEntity(audio)
-        val mutList = mutableFavoriteDecorator.value!!.toMutableList()
-        mutList.add(newValue)
-        mutableFavoriteDecorator.value = mutList
+    fun addToFavoriteList(position: Int, audio: Audio) {
+        mutableFavoriteDecorator.value = dataController.foo.addToFavoriteList(
+            position = position,
+            audio = audio,
+            map = mutableHashMapFavorite.value!!,
+            decorator = mutableFavoriteDecorator.value!!
+        )
     }
 
-    fun removeFromFavoriteSet(audio: Audio) {
-        val listMap = allAudioList.value
-        var positionMap = -1
-        var positionList = -1
-        val listDefault = mutableHashMapFavorite.value?.values
-        listMap?.forEachIndexed { index, song ->
-            if (song.path == audio.path) {
-                positionMap = index
-                return@forEachIndexed
-            }
-        }
-        listDefault?.forEachIndexed{index, song ->
-            if (song.path == audio.path) {
-                positionList = index
-                return@forEachIndexed
-            }
-        }
-        mutableHashMapFavorite.value?.remove(positionMap)
-        val decoratorList = mutableFavoriteDecorator.value!!.toMutableList()
-        decoratorList.removeAt(positionList)
-        mutableFavoriteDecorator.value = decoratorList
+    fun removeFromFavoriteList(audio: Audio) {
+        mutableFavoriteDecorator.value = dataController.foo.removeFromFavoriteList(
+            audio = audio,
+            map = mutableHashMapFavorite.value!!,
+            allAudioList = allAudioList.value!!,
+            decorator = favoriteDecorator.value!!
+        )
     }
 
-    fun getFavoriteState() : Boolean {
+    fun getFavoriteState(): Boolean {
         return mutableMetaData.value?.isFavorite ?: false
     }
 
     fun getMetaData(isFavoriteFragment: Boolean): MetaData {
-        val curMetaData = mutableMetaData.value ?: MetaData()
-        if(isFavoriteFragment) {
-            if(curMetaData.isFavorite) {
-                return curMetaData
-            } else {
-                return MetaData(findPosInFavoriteList(curMetaData.currentPosition),
-                    curMetaData.state,
-                    curMetaData.isFavorite)
-            }
-        } else {
-            if(!curMetaData.isFavorite) {
-                return curMetaData
-            } else {
-                return MetaData(findPosInAllList(curMetaData.currentPosition),
-                curMetaData.state,
-                curMetaData.isFavorite)
-            }
-        }
+        return dataController.mdo.getMetaData(
+            isFavoriteFragment = isFavoriteFragment,
+            metaData = mutableMetaData.value,
+            map = mutableHashMapFavorite.value
+        )
     }
 
     fun favoriteContainsPosition(position: Int): Boolean {
-        return mutableHashMapFavorite.value?.contains(position) == true
+        return dataController.foo.favoriteContainsPosition(position, mutableHashMapFavorite.value!!)
     }
 
     fun favoriteContainsAudio(audio: Audio): Boolean {
-        return mutableHashMapFavorite.value?.containsValue(audio) == true
-    }
-
-    fun findPosInAllList(position: Int) : Int {
-        var counter = 0
-        mutableHashMapFavorite.value?.forEach {
-            if(counter==position) return it.key
-            counter++
-        }
-        return -1
-    }
-
-    fun findPosInFavoriteList(position: Int) : Int {
-        var counter = 0
-        mutableHashMapFavorite.value?.forEach {
-            if(it.key==position) {
-                return counter
-            }
-            counter++
-        }
-        return -1
+        return dataController.foo.favoriteContainsAudio(audio, mutableHashMapFavorite.value!!)
     }
 
     private fun loadData() {

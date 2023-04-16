@@ -2,8 +2,7 @@ package com.example.mediaplayer.service
 
 import android.media.MediaPlayer
 import android.util.Log
-import com.example.mediaplayer.data.PlaybackStatus
-import com.example.mediaplayer.data.Storage
+import com.example.mediaplayer.data.models.PlaybackStatus
 
 class AudioPlayerListener(
     private val notificationCreator: NotificationCreator,

@@ -10,7 +10,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.data.*
+import com.example.mediaplayer.data.models.Audio
+import com.example.mediaplayer.data.models.AudioEntity
+import com.example.mediaplayer.data.models.MetaData
+import com.example.mediaplayer.fragments.listfragments.DetailFragment
 import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
+import com.example.mediaplayer.xml.XMLAudioDecorator
+import com.example.mediaplayer.xml.XMLListenerSetter
 
 class CustomAdapterAudio(
     private val listener: AudioAdapterListener,
@@ -20,9 +26,8 @@ class CustomAdapterAudio(
 
     private var metadata: MetaData = MetaData()
     private var audioList: List<Audio> = emptyList()
-    private var decoratorList: List<AudioEntity> = emptyList()
-    private val checkBoxSetListener = CheckBoxSetListener(listener)
-    private val checkBoxSetData = CheckBoxSetData()
+    private val xmlListenerSetter = XMLListenerSetter(listener)
+    private val xmlAudioDecorator = XMLAudioDecorator()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = when (type) {
@@ -38,12 +43,13 @@ class CustomAdapterAudio(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        checkBoxSetData.setData(
+        xmlAudioDecorator.setData(
             imageArt = holder.artImage,
             title = holder.title,
             playBox = holder.playBox,
             curPos = position,
-            metaData = metadata)
+            metaData = metadata,
+            audioList = audioList)
 
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
@@ -53,7 +59,7 @@ class CustomAdapterAudio(
 
         holder.playBox.setOnClickListener {
 
-            val prevPos = checkBoxSetListener.setPlayListener(
+            val prevPos = xmlListenerSetter.setPlayListener(
                 playBox = it as CheckBox,
                 metaData = metadata,
                 curPos = position,
@@ -73,8 +79,7 @@ class CustomAdapterAudio(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAudioList(audioList: List<Audio>, decoratorList: List<AudioEntity>) {
-        this.decoratorList = decoratorList
-        checkBoxSetData.setDecoratorList(decoratorList)
+        xmlAudioDecorator.setDecoratorList(decoratorList)
         this.audioList = audioList
         notifyDataSetChanged()
     }

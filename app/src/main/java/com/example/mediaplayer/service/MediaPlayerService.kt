@@ -4,10 +4,10 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.example.mediaplayer.data.PlaybackStatus
+import com.example.mediaplayer.data.models.PlaybackStatus
 import com.example.mediaplayer.registrar.Registrar
 import com.example.mediaplayer.data.Storage
-import com.example.mediaplayer.interfaces.AudioSessionInteraction
+import com.example.mediaplayer.interfaces.AudioServiceCallback
 
 class MediaPlayerService : Service() {
 
@@ -64,10 +64,8 @@ class MediaPlayerService : Service() {
     }
 
     inner class LocalBinder : Binder() {
-        lateinit var session: AudioSession
-        fun getService(obj: AudioSessionInteraction): MediaPlayerService {
-            audioSession.setCallback(obj)
-            session = audioSession
+        fun getService(obj: AudioServiceCallback): MediaPlayerService {
+            audioPlayer.setServiceCallback(obj)
             return this@MediaPlayerService
         }
     }
