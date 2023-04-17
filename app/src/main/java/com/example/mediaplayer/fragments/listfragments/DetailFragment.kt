@@ -99,7 +99,7 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail) {
 
         nextImage?.setOnClickListener {
             if (detailPosition == decoratorList.size - 1) detailPosition =
-                metaData.currentPosition + 1 else detailPosition++
+                0 else detailPosition++
             val newMeta = MetaData(detailPosition, PlaybackStatus.PLAYING, isFavorite)
             sendPlayAudio(newMeta, audioList)
             callbackMetaData(newMeta)

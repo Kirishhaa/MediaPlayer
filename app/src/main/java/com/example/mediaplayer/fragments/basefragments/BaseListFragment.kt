@@ -87,8 +87,8 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
         adapter?.setAudioList(songsList, decoratorList)
     }
 
-    override fun navigate(fragment: Fragment) {
-        sourceFragment?.navigate(fragment)
+    override fun navigate(fragment: Fragment, isFavorite: Boolean) {
+        sourceFragment?.navigate(fragment, this.isFavorite)
     }
 
     override fun getFavoriteList(): List<Audio> {

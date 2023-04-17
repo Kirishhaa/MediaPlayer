@@ -25,7 +25,7 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         storage = Storage(requireContext().applicationContext)
-        navigator = FragmentNavigatorImpl(childFragmentManager, storage)
+        navigator = FragmentNavigatorImpl(view, childFragmentManager, storage)
         viewModel.initialize(storage.readAllAudioList(), storage.readFavoriteMap())
 
         if (savedInstanceState == null) {
@@ -57,8 +57,8 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
     }
 
     //NAVIGATOR
-    override fun navigate(fragment: Fragment) {
-        navigator.navigate(fragment)
+    override fun navigate(fragment: Fragment, isFavorite: Boolean) {
+        navigator.navigate(fragment, isFavorite)
     }
 
     //METADATA

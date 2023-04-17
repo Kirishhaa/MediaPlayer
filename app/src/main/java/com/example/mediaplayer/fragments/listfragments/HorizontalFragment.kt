@@ -34,6 +34,6 @@ class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
     }
 
     override fun onBackPressed(): Boolean {
-        return isFavorite
+        return false
     }
 }

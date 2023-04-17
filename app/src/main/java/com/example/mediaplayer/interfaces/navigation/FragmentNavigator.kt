@@ -3,5 +3,5 @@ package com.example.mediaplayer.interfaces.navigation
 import androidx.fragment.app.Fragment
 
 interface FragmentNavigator {
-    fun navigate(fragment: Fragment)
+    fun navigate(fragment: Fragment, isFavorite: Boolean = false)
 }
