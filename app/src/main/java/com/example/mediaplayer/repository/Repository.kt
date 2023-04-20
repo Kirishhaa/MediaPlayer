@@ -13,13 +13,11 @@ class Repository {
     suspend fun loadData(): List<Audio> {
         val mutableAudioList = mutableListOf<Audio>()
         withContext(Dispatchers.IO) {
-            Log.d("REPOSITORY", "LOADING DATA")
             val musicDirectory =
                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).path)
             val f = File(musicDirectory.toString())
             val list = f.listFiles()
             list?.forEach {
-                Log.i("REPOSITORY LIST", MimeTypeMap.getFileExtensionFromUrl(it.toUri().toString()))
                 if (it.toUri().toString().contains("mp3")) {
                     mutableAudioList.add(Audio(it.absolutePath))
                 }

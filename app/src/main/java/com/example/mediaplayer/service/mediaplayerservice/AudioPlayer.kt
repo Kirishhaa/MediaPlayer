@@ -1,23 +1,27 @@
 package com.example.mediaplayer.service.mediaplayerservice
 
+import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.util.Log
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.storageutils.Storage
 import com.example.mediaplayer.dataoperations.datacontroller.DataController
+import com.example.mediaplayer.eventcontroller.intents.IntentsHandler
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.interfaces.AudioServiceCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class AudioPlayer(
+    private val context: Context,
     private val storage: Storage,
 ) : MediaPlayer() {
 
     private val dataController = DataController()
-
-    private lateinit var audioServiceCallback: AudioServiceCallback
     private lateinit var audioPlayerListener: AudioPlayerListener
     var audioList: List<Audio>
         private set
@@ -35,18 +39,21 @@ class AudioPlayer(
         currentAudio = dataController.dso.setStartedCurrentAudio(currentIndex, audioList)
     }
 
-    fun setServiceCallback(obj: AudioServiceCallback) {
-        this.audioServiceCallback = obj
+    fun setListener(listener: AudioPlayerListener) {
+        this.audioPlayerListener = listener
+        setOnErrorListener(audioPlayerListener)
+        setOnPreparedListener(audioPlayerListener)
+        setOnCompletionListener(audioPlayerListener)
     }
 
-    fun initialize(listener: AudioPlayerListener) {
+    fun initialize() {
+        stopAudio()
         reset()
 
-        this.audioPlayerListener = listener
-
-        setOnErrorListener(listener)
-        setOnPreparedListener(listener)
-        setOnCompletionListener(listener)
+        currentIndex = storage.readIndex()
+        isFavorite = storage.readFavorite()
+        audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
+        currentAudio = dataController.dso.setStartedCurrentAudio(currentIndex, audioList)
 
         if (currentIndex != -1 && currentIndex < audioList.size) {
             currentAudio = audioList[currentIndex]
@@ -67,6 +74,7 @@ class AudioPlayer(
         if (!isPlaying) {
             start()
             callbackAudioPlayerInteraction()
+            callbackTimeAudioPlayer()
         }
     }
 
@@ -76,9 +84,7 @@ class AudioPlayer(
         currentIndex = dataController.dso.setNextIndexInRangeAudioList(currentIndex, audioList)
         currentAudio = audioList[currentIndex]
         storage.writeIndex(currentIndex)
-        stopAudio()
-        reset()
-        initialize(audioPlayerListener)
+        initialize()
         callbackAudioPlayerInteraction()
     }
 
@@ -88,20 +94,28 @@ class AudioPlayer(
         currentIndex = dataController.dso.setPreviousIndexInRangeAudioList(currentIndex, audioList)
         currentAudio = audioList[currentIndex]
         storage.writeIndex(currentIndex)
-        stopAudio()
-        reset()
-        initialize(audioPlayerListener)
+        initialize()
         callbackAudioPlayerInteraction()
     }
 
     private fun callbackAudioPlayerInteraction() {
-        audioServiceCallback.getMetaDataFromService(
+        IntentsHandler().sendMetaDataFromService(
+            context,
             MetaData(
                 currentIndex,
                 if (isPlaying) PlaybackStatus.PLAYING else PlaybackStatus.PAUSED,
                 isFavorite
             )
         )
+    }
+
+    private fun callbackTimeAudioPlayer() {
+        val intentsHandler = IntentsHandler()
+        CoroutineScope(Dispatchers.IO).launch {
+            while (isPlaying) {
+                intentsHandler.sendAudioTimeFromService(context, Pair(currentPosition, duration))
+            }
+        }
     }
 
     fun stopAudio() {
@@ -122,6 +136,7 @@ class AudioPlayer(
         if (!isPlaying) {
             start()
             callbackAudioPlayerInteraction()
+            callbackTimeAudioPlayer()
         }
     }
 
@@ -130,9 +145,7 @@ class AudioPlayer(
         audioList = dataController.dso.setStartedAudioList(storage, isFavorite)
         currentIndex = storage.readIndex()
         currentAudio = dataController.dso.setStartedCurrentAudio(currentIndex, audioList)
-        stopAudio()
-        reset()
-        initialize(audioPlayerListener)
+        initialize()
         callbackAudioPlayerInteraction()
     }
 }

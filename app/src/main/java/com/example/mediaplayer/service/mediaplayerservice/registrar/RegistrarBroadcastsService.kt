@@ -5,14 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
-import com.example.mediaplayer.eventcontroller.intents.AudioBroadcastSender
+import com.example.mediaplayer.eventcontroller.intents.BroadcastSender
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.service.mediaplayerservice.AudioPlayer
 import com.example.mediaplayer.service.mediaplayerservice.AudioSession
 import com.example.mediaplayer.service.mediaplayerservice.MediaPlayerService
 import com.example.mediaplayer.service.mediaplayerservice.NotificationCreator
 
-class RegistrarBroadcasts(
+class RegistrarBroadcastsService(
     private val audioPlayer: AudioPlayer,
     private val notificationCreator: NotificationCreator,
     private val audioSession: AudioSession,
@@ -112,7 +112,7 @@ class RegistrarBroadcasts(
     }
 
     private fun registerPlayNewAudio(context: Context) {
-        val intentFilter = IntentFilter(AudioBroadcastSender.BROADCAST_PLAY_NEW_AUDIO)
+        val intentFilter = IntentFilter(BroadcastSender.BROADCAST_PLAY_NEW_AUDIO)
         context.registerReceiver(playNewAudioReceiver, intentFilter)
     }
 }

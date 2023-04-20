@@ -1,12 +1,13 @@
 package com.example.mediaplayer.dataoperations.xml
 
+import android.util.Log
 import android.widget.CheckBox
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.storageutils.Storage
-import com.example.mediaplayer.fragments.listfragments.HorizontalFragment
-import com.example.mediaplayer.fragments.listfragments.VerticalFragment
+import com.example.mediaplayer.fragments.playerfragments.listfragments.HorizontalFragment
+import com.example.mediaplayer.fragments.playerfragments.listfragments.VerticalFragment
 import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 
 class XMLListenerSetter(private val listener: AudioAdapterListener) {
@@ -22,12 +23,10 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
         if (!playBox.isChecked) {
             metadata =
                 MetaData(curPos, PlaybackStatus.PAUSED, listener.getIsFavoriteState())
-            listener.callbackMetaData(metadata)
             listener.sendPauseAudio(metadata)
         } else {
             if (metadata.currentPosition == curPos) {
                 metadata = MetaData(curPos, PlaybackStatus.PLAYING, listener.getIsFavoriteState())
-                listener.callbackMetaData(metadata)
                 listener.sendResumeAudio(metadata)
             } else {
                 val prevPos = metadata.currentPosition
@@ -35,7 +34,6 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
                 if (prevPos != -1) {
                     callbackPosition = prevPos
                 }
-                listener.callbackMetaData(metadata)
                 listener.sendPlayAudio(metadata, audioList)
             }
         }
@@ -49,27 +47,20 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
         audioList: List<Audio>,
         storage: Storage,
     ) {
-        var metaData = metaData1
         if (checkBox.isChecked) {
             listener.addToFavorite(curPos, audioList[curPos])
         } else {
             listener.removeFromFavorite(audioList[curPos])
             if (listener.getIsFavoriteState()) {
-                if (curPos == metaData.currentPosition) {
+                if (curPos == metaData1.currentPosition) {
                     listener.sendStopAudio()
-                    listener.callbackMetaData(MetaData())
-                } else if (curPos < metaData.currentPosition) {
-                    metaData =
-                        MetaData(metaData.currentPosition - 1, metaData.state, metaData.isFavorite)
-                    listener.callbackMetaData(metaData)
                 }
                 if (!listener.favoriteIsNotEmpty()) {
                     listener.navigate(HorizontalFragment())
                 } else listener.navigate(VerticalFragment.onInstance(true))
             } else {
-                if (curPos == metaData.currentPosition && storage.readFavorite()) {
+                if (curPos == metaData1.currentPosition && storage.readFavorite()) {
                     listener.sendStopAudio()
-                    listener.callbackMetaData(MetaData())
                 }
             }
         }

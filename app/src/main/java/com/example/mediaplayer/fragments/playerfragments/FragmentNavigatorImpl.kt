@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.playerfragments
 
 import android.view.View
 import android.widget.FrameLayout
@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.mediaplayer.R
-import com.example.mediaplayer.fragments.listfragments.HorizontalFragment
+import com.example.mediaplayer.fragments.playerfragments.listfragments.HorizontalFragment
 import com.example.mediaplayer.interfaces.navigation.FragmentNavigator
 import com.example.mediaplayer.storageutils.Storage
 
@@ -25,6 +25,8 @@ class FragmentNavigatorImpl(
                     .replace(R.id.menu_fragment_favorite_audio, HorizontalFragment.onInstance(true))
                     .commit()
                 favFr.isVisible = true
+            } else {
+                favFr.isVisible = false
             }
             fragmentManager.beginTransaction()
                 .replace(R.id.menu_fragment_all_audio, fragment)

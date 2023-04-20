@@ -18,7 +18,7 @@
         android:layout_height="300dp"
         android:layout_marginTop="50dp"
         android:scaleType="fitXY"
-        android:background="@drawable/cardview_shape"
+        android:background="@color/app_tools"
         app:layout_constraintStart_toEndOf="@id/space_left"
         app:layout_constraintEnd_toStartOf="@id/space_right"
         app:layout_constraintTop_toBottomOf="@id/space_top"/>
@@ -37,15 +37,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/detail_progress_bar_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/detail_progress_bar"
+        app:layout_constraintBottom_toTopOf="@id/detail_progress_bar"/>
+
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/detail_progress_bar"
         app:trackColor="@color/gray"
         app:indicatorColor="@color/black"
-        android:id="@+id/detail_progress_bar"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:max="100"
-        android:progress="20"
+        android:progress="100"
         android:layout_marginTop="40dp"
         app:layout_constraintBottom_toTopOf="@id/space_bottom"
         app:layout_constraintEnd_toStartOf="@id/space_right"

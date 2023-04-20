@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.playerfragments
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,6 +26,8 @@ class AudioViewModel : ViewModel() {
     val allListDecorator: LiveData<List<AudioEntity>> = mutableAllListDecorator
     private val mutableFavoriteDecorator = MutableLiveData<List<AudioEntity>>()
     val favoriteDecorator: LiveData<List<AudioEntity>> = mutableFavoriteDecorator
+    private val mutableAudioCurrentTime = MutableLiveData<Pair<Int, Int>>()
+    val audioCurrentTime: LiveData<Pair<Int, Int>> = mutableAudioCurrentTime
     private val dataController = DataController()
 
     fun initialize(readAllAudioList: List<Audio>, readFavoriteMap: LinkedHashMap<Int, Audio>) {
@@ -41,8 +43,13 @@ class AudioViewModel : ViewModel() {
                 )
                 mutableAudioList.postValue(readAllAudioList)
                 mutableHashMapFavorite.postValue(readFavoriteMap)
+                mutableAudioCurrentTime.postValue(Pair(-1,-1))
             }
         }
+    }
+
+    fun updateAudioCurrentTime(data: Pair<Int, Int>) {
+        mutableAudioCurrentTime.value = data
     }
 
     fun updateAllListMetaData(metaData: MetaData) {
@@ -91,8 +98,11 @@ class AudioViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             mutableMetaData.postValue(MetaData())
             val list = repo.loadData()
+            mutableHashMapFavorite.postValue(LinkedHashMap(emptyMap<Int, Audio>()))
+            mutableFavoriteDecorator.postValue(emptyList())
             mutableAllListDecorator.postValue(list.map { AudioDecoder.getAudioEntity(it) })
             mutableAudioList.postValue(list)
+            mutableAudioCurrentTime.postValue(Pair(-1, -1))
         }
     }
 }

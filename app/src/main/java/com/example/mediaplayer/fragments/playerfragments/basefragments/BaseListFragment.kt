@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments.basefragments
+package com.example.mediaplayer.fragments.playerfragments.basefragments
 
 import android.content.Context
 import android.os.Bundle
@@ -8,7 +8,7 @@ import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.dataoperations.datacontroller.DataController
-import com.example.mediaplayer.fragments.CustomAdapterAudio
+import com.example.mediaplayer.fragments.playerfragments.CustomAdapterAudio
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
 import com.example.mediaplayer.interfaces.markers.SourceFragment
@@ -17,6 +17,9 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
     private var audioController: AudioController? = null
     private var sourceFragment: SourceFragment? = null
     private val dataController = DataController()
+
+    open var toolbarTitle: String = "Menu"
+    open var toolbarShowShuffleBox: Boolean = false
 
     protected var adapter: CustomAdapterAudio? = null
 
@@ -34,11 +37,15 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sourceFragment?.setTitle(toolbarTitle)
+        sourceFragment?.showShuffleBox(toolbarShowShuffleBox)
+
         dataController.dso.run {
             isFavorite = setStartedIsFavorite(isFavorite, savedInstanceState)
             metaData = setStartedMetaData(sourceFragment, isFavorite)
-            audioList = setStartedAudioList(sourceFragment, isFavorite)
             decoratorList = setStartedDecoratorList(sourceFragment, isFavorite)
+            audioList = setStartedAudioList(sourceFragment, isFavorite)
         }
     }
 
@@ -63,10 +70,6 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
 
     override fun sendStopAudio() {
         audioController?.stopAudio()
-    }
-
-    override fun callbackMetaData(metadata: MetaData) {
-        sourceFragment?.updateMetaData(metadata)
     }
 
     override fun setMetaData(metadata: MetaData) {

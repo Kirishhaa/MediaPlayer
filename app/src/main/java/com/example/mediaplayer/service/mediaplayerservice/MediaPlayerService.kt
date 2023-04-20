@@ -7,7 +7,6 @@ import android.os.IBinder
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.service.mediaplayerservice.registrar.Registrar
 import com.example.mediaplayer.storageutils.Storage
-import com.example.mediaplayer.interfaces.AudioServiceCallback
 
 class MediaPlayerService : Service() {
 
@@ -35,7 +34,7 @@ class MediaPlayerService : Service() {
     override fun onCreate() {
         super.onCreate()
         storage = Storage(applicationContext)
-        audioPlayer = AudioPlayer(storage)
+        audioPlayer = AudioPlayer(applicationContext, storage)
         notificationCreator = NotificationCreator(applicationContext)
         audioSession =
             AudioSession(applicationContext, "AudioSession", audioPlayer, notificationCreator)
@@ -47,9 +46,10 @@ class MediaPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (!registrar.isAudioFocusRequest()) stopSelf()
 
+        audioPlayer.setListener(audioPlayerListener)
         if (!audioSession.isActive) {
+            audioPlayer.initialize()
             audioSession.initialize()
-            audioPlayer.initialize(audioPlayerListener)
             notificationCreator.createNotification(
                 audioPlayer.currentAudio,
                 audioSession,
@@ -65,8 +65,7 @@ class MediaPlayerService : Service() {
     }
 
     inner class LocalBinder : Binder() {
-        fun getService(obj: AudioServiceCallback): MediaPlayerService {
-            audioPlayer.setServiceCallback(obj)
+        fun getService(): MediaPlayerService {
             return this@MediaPlayerService
         }
     }

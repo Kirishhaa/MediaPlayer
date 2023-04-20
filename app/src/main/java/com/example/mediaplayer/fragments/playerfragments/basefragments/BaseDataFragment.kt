@@ -1,5 +1,6 @@
-package com.example.mediaplayer.fragments.basefragments
+package com.example.mediaplayer.fragments.playerfragments.basefragments
 
+import com.example.mediaplayer.fragments.BaseFragment
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData

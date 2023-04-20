@@ -1,14 +1,17 @@
-package com.example.mediaplayer.fragments.listfragments
+package com.example.mediaplayer.fragments.playerfragments.listfragments
 
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.fragments.CustomAdapterAudio
-import com.example.mediaplayer.fragments.basefragments.BaseListFragment
+import com.example.mediaplayer.fragments.playerfragments.CustomAdapterAudio
+import com.example.mediaplayer.fragments.playerfragments.basefragments.BaseListFragment
 
 class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
+
+    override var toolbarTitle: String = "Music list"
+    override var toolbarShowShuffleBox: Boolean = true
 
     companion object {
         fun onInstance(isFavorite: Boolean): VerticalFragment {
@@ -20,6 +23,9 @@ class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //must be changed impl of saving states fragments
+        if(savedInstanceState!=null) navigate(this)
+
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_vertical)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.VERTICAL)

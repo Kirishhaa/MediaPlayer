@@ -5,18 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import com.example.mediaplayer.eventcontroller.intents.IntentsHandler
-import com.example.mediaplayer.interfaces.AudioServiceCallback
 import com.example.mediaplayer.service.mediaplayerservice.MediaPlayerService
 
-class ServiceWorker(interact: AudioServiceCallback, private val intentsHandler: IntentsHandler) {
+class ServiceWorker {
     var boundService = false
-    private lateinit var musicService: MediaPlayerService
+    private var musicService: MediaPlayerService?=null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerService.LocalBinder
-            musicService = binder.getService(interact)
+            musicService = binder.getService()
             boundService = true
         }
 
@@ -26,12 +26,15 @@ class ServiceWorker(interact: AudioServiceCallback, private val intentsHandler: 
     }
 
     fun sendIntentsToService(context: Context) {
+        val intentsHandler = IntentsHandler()
         if (!boundService) {
             val intent = Intent(context, MediaPlayerService::class.java)
             context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
             context.startService(intent)
+            Log.d("ServiceWorker", "Unbinded")
         } else {
             intentsHandler.sendPlayAudio(context)
+            Log.d("ServiceWorker", "binded")
         }
     }
 }

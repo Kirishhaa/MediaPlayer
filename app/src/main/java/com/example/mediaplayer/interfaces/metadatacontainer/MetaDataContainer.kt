@@ -4,5 +4,4 @@ import com.example.mediaplayer.models.MetaData
 
 interface MetaDataContainer {
     fun setMetaData(metadata: MetaData)
-    fun callbackMetaData(metadata: MetaData)
 }

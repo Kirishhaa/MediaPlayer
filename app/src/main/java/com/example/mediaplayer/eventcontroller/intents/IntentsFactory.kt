@@ -3,6 +3,7 @@ package com.example.mediaplayer.eventcontroller.intents
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.service.mediaplayerservice.MediaPlayerService
 import com.example.mediaplayer.service.mediaplayerservice.NotificationCreator
@@ -37,4 +38,8 @@ class IntentsFactory {
             else -> null
         }
     }
+
+//    fun createApplicationSettingIntent(): Intent {
+//        return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+//    }
 }

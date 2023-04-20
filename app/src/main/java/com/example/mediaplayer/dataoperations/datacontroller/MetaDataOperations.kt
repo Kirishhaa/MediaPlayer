@@ -20,7 +20,7 @@ class MetaDataOperations(private val foo: FavoriteObjectOperations) {
                         map ?: emptyMap()
                     ),
                     curMetaData.state,
-                    curMetaData.isFavorite
+                    true
                 )
             }
         } else {
@@ -33,7 +33,7 @@ class MetaDataOperations(private val foo: FavoriteObjectOperations) {
                         map ?: emptyMap()
                     ),
                     curMetaData.state,
-                    curMetaData.isFavorite
+                    false
                 )
             }
         }

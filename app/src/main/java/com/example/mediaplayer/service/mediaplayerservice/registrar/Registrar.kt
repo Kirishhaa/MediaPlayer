@@ -10,21 +10,21 @@ class Registrar(
     notificationCreator: NotificationCreator,
     audioSession: AudioSession,
 ) {
-    private val registrarBroadcasts =
-        RegistrarBroadcasts(audioPlayer, notificationCreator, audioSession)
+    private val registrarBroadcastsService =
+        RegistrarBroadcastsService(audioPlayer, notificationCreator, audioSession)
     private val audioFocusListener = AudioFocusListener(audioPlayer)
     private val callStateListener = CallStateListener(audioPlayer)
 
     fun isAudioFocusRequest() = audioFocusListener.registerState
 
     fun register(context: Context) {
-        registrarBroadcasts.register(context)
+        registrarBroadcastsService.register(context)
         audioFocusListener.register(context)
         callStateListener.register(context)
     }
 
     fun unregister(context: Context) {
-        registrarBroadcasts.unregister(context)
+        registrarBroadcastsService.unregister(context)
         audioFocusListener.unregister(context)
         callStateListener.unregister()
     }

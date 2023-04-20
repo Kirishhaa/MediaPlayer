@@ -3,11 +3,12 @@ package com.example.mediaplayer.eventcontroller.intents
 import android.content.Context
 import android.content.Intent
 import android.support.v4.media.session.MediaControllerCompat
+import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.service.mediaplayerservice.MediaPlayerService
 
 class IntentsHandler {
 
-    private val audioBroadcastSender = AudioBroadcastSender()
+    private val broadcastSender = BroadcastSender()
 
     fun handlePlaybackUserInteraction(
         intent: Intent?,
@@ -30,19 +31,27 @@ class IntentsHandler {
         }
     }
 
+    fun sendAudioTimeFromService(context: Context, data: Pair<Int, Int>) {
+        broadcastSender.sendAudioTimeFromService(context, data)
+    }
+
+    fun sendMetaDataFromService(context: Context, metaData: MetaData) {
+        broadcastSender.sendMetaDataFromService(context, metaData)
+    }
+
     fun sendPlayAudio(context: Context) {
-        audioBroadcastSender.sendPlayAudio(context)
+        broadcastSender.sendPlayAudio(context)
     }
 
     fun sendPauseAudio(context: Context) {
-        audioBroadcastSender.sendPauseAudio(context)
+        broadcastSender.sendPauseAudio(context)
     }
 
     fun sendResumeAudio(context: Context) {
-        audioBroadcastSender.sendResumeAudio(context)
+        broadcastSender.sendResumeAudio(context)
     }
 
     fun sendStopAudio(context: Context) {
-        audioBroadcastSender.sendStopAudio(context)
+        broadcastSender.sendStopAudio(context)
     }
 }

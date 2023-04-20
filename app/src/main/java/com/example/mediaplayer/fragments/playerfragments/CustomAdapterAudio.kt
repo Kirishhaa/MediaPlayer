@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments
+package com.example.mediaplayer.fragments.playerfragments
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -13,7 +13,7 @@ import com.example.mediaplayer.dataoperations.*
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData
-import com.example.mediaplayer.fragments.listfragments.DetailFragment
+import com.example.mediaplayer.fragments.playerfragments.listfragments.DetailFragment
 import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 import com.example.mediaplayer.dataoperations.xml.XMLAudioDecorator
 import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
@@ -43,14 +43,10 @@ class CustomAdapterAudio(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        xmlAudioDecorator.setData(
-            imageArt = holder.artImage,
-            title = holder.title,
-            playBox = holder.playBox,
-            curPos = position,
-            metaData = metadata,
-            audioList = audioList
-        )
+        xmlAudioDecorator.setImageArt(holder.artImage, position)
+        xmlAudioDecorator.setTitle(holder.title, position)
+        xmlAudioDecorator.setPlayBox(holder.playBox, metadata, position)
+
 
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
@@ -64,7 +60,6 @@ class CustomAdapterAudio(
         }
 
         holder.playBox.setOnClickListener {
-
             val prevPos = xmlListenerSetter.setPlayListener(
                 playBox = it as CheckBox,
                 metaData = metadata,

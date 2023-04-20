@@ -1,46 +1,69 @@
 package com.example.mediaplayer
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.mediaplayer.eventcontroller.PermissionsHandler
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.MetaData
-import com.example.mediaplayer.fragments.MenuFragment
+import com.example.mediaplayer.fragments.playerfragments.MenuFragment
 import com.example.mediaplayer.eventcontroller.intents.IntentsHandler
+import com.example.mediaplayer.fragments.PermissionsFragment
+import com.example.mediaplayer.interfaces.ActivityNavigator
 import com.example.mediaplayer.interfaces.AudioServiceCallback
+import com.example.mediaplayer.interfaces.ProgressBarSource
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.metadatacontainer.MetaDataSource
 import com.example.mediaplayer.interfaces.navigation.FragmentBackPressed
 import com.example.mediaplayer.service.ServiceWorker
 import com.example.mediaplayer.storageutils.Storage
 
-class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback {
+class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback, ActivityNavigator {
 
     private lateinit var storage: Storage
     private lateinit var serviceWorker: ServiceWorker
     private val intentsHandler = IntentsHandler()
-    private val permissionsHandler = PermissionsHandler()
+    private val registrarBroadcastsActivity = RegistrarBroadcastsActivity(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         storage = Storage(applicationContext)
-        serviceWorker = ServiceWorker(this, intentsHandler)
+        serviceWorker = ServiceWorker()
         serviceWorker.boundService = savedInstanceState?.getBoolean("isBound") ?: false
-        permissionsHandler.requestPermissions(this)
 
         if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.activity_fragment_container, MenuFragment())
-                .commit()
+            navigate(getStartedFragment())
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("isBound", serviceWorker.boundService)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        registrarBroadcastsActivity.registerAudioTimeFromService(this)
+        registrarBroadcastsActivity.registerAudioMetaDataFromService(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        registrarBroadcastsActivity.unregisterAudioTimeFromService(this)
+        registrarBroadcastsActivity.unregisterMetaDataFromService(this)
+    }
+
+    private fun getStartedFragment(): Fragment {
+        val permissionsHandler = PermissionsHandler()
+        return if (permissionsHandler.isReadExternalStorageGranted(applicationContext)) {
+            MenuFragment()
+        } else {
+            PermissionsFragment()
+        }
     }
 
     override fun playAudio(
@@ -72,18 +95,33 @@ class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback 
     }
 
     override fun onBackPressed() {
-        supportFragmentManager.fragments.getOrNull(0)?.apply {
-            childFragmentManager.fragments.forEach {
-                if (it is FragmentBackPressed) {
-                    if (!it.onBackPressed()) super.onBackPressed()
+        supportFragmentManager.fragments.getOrNull(0).let { menuFragment ->
+            menuFragment?.childFragmentManager?.fragments?.forEach { fragmentBackPressed ->
+                if (fragmentBackPressed is FragmentBackPressed) {
+                    if (!fragmentBackPressed.onBackPressed()) super.onBackPressed()
                 }
             }
         }
     }
 
     override fun getMetaDataFromService(metadata: MetaData) {
-        supportFragmentManager.fragments.getOrNull(0)?.let {
+        supportFragmentManager.fragments.getOrNull(0).let {
             (it as MetaDataSource).updateMetaData(metadata)
         }
+    }
+
+    override fun getTimeAudioPlayer(data: Pair<Int, Int>) {
+        Handler(Looper.getMainLooper()).post {
+            supportFragmentManager.fragments.forEach {
+                if(it is ProgressBarSource) it.updateAudioCurrentTime(data)
+            }
+        }
+    }
+
+    override fun navigate(fragment: Fragment) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.activity_fragment_container, fragment)
+            .commit()
     }
 }

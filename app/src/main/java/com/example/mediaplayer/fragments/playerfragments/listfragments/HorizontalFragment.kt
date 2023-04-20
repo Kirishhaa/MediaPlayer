@@ -1,4 +1,4 @@
-package com.example.mediaplayer.fragments.listfragments
+package com.example.mediaplayer.fragments.playerfragments.listfragments
 
 import android.os.Bundle
 import android.view.View
@@ -6,8 +6,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediaplayer.R
-import com.example.mediaplayer.fragments.CustomAdapterAudio
-import com.example.mediaplayer.fragments.basefragments.BaseListFragment
+import com.example.mediaplayer.fragments.playerfragments.CustomAdapterAudio
+import com.example.mediaplayer.fragments.playerfragments.basefragments.BaseListFragment
 
 class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
 
@@ -21,6 +21,8 @@ class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //Must be changed
+        if(savedInstanceState!=null) navigate(this)
         val tvAsList = view.findViewById<TextView>(R.id.tv_see_as_list)
         tvAsList.setOnClickListener { navigate(VerticalFragment.onInstance(isFavorite)) }
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_music_list_horizontal)

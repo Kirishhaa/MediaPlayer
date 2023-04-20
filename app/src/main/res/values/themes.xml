@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.V24.Theme.MediaPlayer" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Base.V24.Theme.MediaPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         name="Theme.MediaPlayer" parent="Base.Theme.MediaPlayer">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#ffffcc80</item>

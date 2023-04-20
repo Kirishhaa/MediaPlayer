@@ -7,6 +7,7 @@ import android.media.MediaMetadata
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import com.example.mediaplayer.R
 import com.example.mediaplayer.dataoperations.AudioDecoder
 import com.example.mediaplayer.models.PlaybackStatus
