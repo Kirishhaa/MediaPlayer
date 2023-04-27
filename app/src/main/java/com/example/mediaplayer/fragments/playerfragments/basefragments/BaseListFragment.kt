@@ -4,10 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.example.mediaplayer.dataoperations.datacontroller.DataSetOperations
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData
-import com.example.mediaplayer.dataoperations.datacontroller.DataController
 import com.example.mediaplayer.fragments.playerfragments.CustomAdapterAudio
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
@@ -16,7 +16,6 @@ import com.example.mediaplayer.interfaces.markers.SourceFragment
 abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), BaseListInteraction {
     private var audioController: AudioController? = null
     private var sourceFragment: SourceFragment? = null
-    private val dataController = DataController()
 
     open var toolbarTitle: String = "Menu"
     open var toolbarShowShuffleBox: Boolean = false
@@ -41,7 +40,7 @@ abstract class BaseListFragment(resLayout: Int) : BaseDataFragment(resLayout), B
         sourceFragment?.setTitle(toolbarTitle)
         sourceFragment?.showShuffleBox(toolbarShowShuffleBox)
 
-        dataController.dso.run {
+        DataSetOperations().run {
             isFavorite = setStartedIsFavorite(isFavorite, savedInstanceState)
             metaData = setStartedMetaData(sourceFragment, isFavorite)
             decoratorList = setStartedDecoratorList(sourceFragment, isFavorite)

@@ -5,11 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer.dataoperations.AudioDecoder
+import com.example.mediaplayer.dataoperations.datacontroller.FavoriteObjectOperations
+import com.example.mediaplayer.dataoperations.datacontroller.MetaDataOperations
 import com.example.mediaplayer.repository.Repository
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData
-import com.example.mediaplayer.dataoperations.datacontroller.DataController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,22 +29,25 @@ class AudioViewModel : ViewModel() {
     val favoriteDecorator: LiveData<List<AudioEntity>> = mutableFavoriteDecorator
     private val mutableAudioCurrentTime = MutableLiveData<Pair<Int, Int>>()
     val audioCurrentTime: LiveData<Pair<Int, Int>> = mutableAudioCurrentTime
-    private val dataController = DataController()
 
     fun initialize(readAllAudioList: List<Audio>, readFavoriteMap: LinkedHashMap<Int, Audio>) {
         if (readAllAudioList.isEmpty()) {
             loadData()
         } else {
             CoroutineScope(Dispatchers.IO).launch {
-                mutableAllListDecorator.postValue(readAllAudioList.map {
-                    AudioDecoder.getAudioEntity(it)
-                })
-                mutableFavoriteDecorator.postValue(
-                    readFavoriteMap.values.toList().map { AudioDecoder.getAudioEntity(it) }
-                )
-                mutableAudioList.postValue(readAllAudioList)
-                mutableHashMapFavorite.postValue(readFavoriteMap)
-                mutableAudioCurrentTime.postValue(Pair(-1,-1))
+                try {
+                    mutableAllListDecorator.postValue(readAllAudioList.map {
+                        AudioDecoder.getAudioEntity(it)
+                    })
+                    mutableFavoriteDecorator.postValue(
+                        readFavoriteMap.values.toList().map { AudioDecoder.getAudioEntity(it) }
+                    )
+                    mutableAudioList.postValue(readAllAudioList)
+                    mutableHashMapFavorite.postValue(readFavoriteMap)
+                    mutableAudioCurrentTime.postValue(Pair(-1, -1))
+                } catch (e: Exception) {
+                    loadData()
+                }
             }
         }
     }
@@ -57,7 +61,8 @@ class AudioViewModel : ViewModel() {
     }
 
     fun addToFavoriteList(position: Int, audio: Audio) {
-        mutableFavoriteDecorator.value = dataController.foo.addToFavoriteList(
+        val foo = FavoriteObjectOperations()
+        mutableFavoriteDecorator.value = foo.addToFavoriteList(
             position = position,
             audio = audio,
             map = mutableHashMapFavorite.value!!,
@@ -66,7 +71,8 @@ class AudioViewModel : ViewModel() {
     }
 
     fun removeFromFavoriteList(audio: Audio) {
-        mutableFavoriteDecorator.value = dataController.foo.removeFromFavoriteList(
+        val foo = FavoriteObjectOperations()
+        mutableFavoriteDecorator.value = foo.removeFromFavoriteList(
             audio = audio,
             map = mutableHashMapFavorite.value!!,
             allAudioList = allAudioList.value!!,
@@ -79,7 +85,8 @@ class AudioViewModel : ViewModel() {
     }
 
     fun getMetaData(isFavoriteFragment: Boolean): MetaData {
-        return dataController.mdo.getMetaData(
+        val mdo = MetaDataOperations(FavoriteObjectOperations())
+        return mdo.getMetaData(
             isFavoriteFragment = isFavoriteFragment,
             metaData = mutableMetaData.value,
             map = mutableHashMapFavorite.value
@@ -87,11 +94,13 @@ class AudioViewModel : ViewModel() {
     }
 
     fun favoriteContainsPosition(position: Int): Boolean {
-        return dataController.foo.favoriteContainsPosition(position, mutableHashMapFavorite.value!!)
+        val foo = FavoriteObjectOperations()
+        return foo.favoriteContainsPosition(position, mutableHashMapFavorite.value!!)
     }
 
     fun favoriteContainsAudio(audio: Audio): Boolean {
-        return dataController.foo.favoriteContainsAudio(audio, mutableHashMapFavorite.value!!)
+        val foo = FavoriteObjectOperations()
+        return foo.favoriteContainsAudio(audio, mutableHashMapFavorite.value!!)
     }
 
     private fun loadData() {

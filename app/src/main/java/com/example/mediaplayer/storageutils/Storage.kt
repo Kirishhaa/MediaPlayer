@@ -8,7 +8,6 @@ import com.google.gson.reflect.TypeToken
 class Storage(private val context: Context) {
     private val STORAGE = "com.example.mediaplayer.STORAGE"
     private val ALL_AUDIO_LIST = "all_audio_list"
-    private val FAVORITE_AUDIO_LIST = "favorite_audio_list"
     private val FAVORITE_MAP = "favorite_map"
 
     fun writeFavoriteMap(map: Map<Int, Audio>) {

@@ -13,7 +13,7 @@ import com.example.mediaplayer.eventcontroller.intents.IntentsHandler
 import com.example.mediaplayer.fragments.PermissionsFragment
 import com.example.mediaplayer.interfaces.ActivityNavigator
 import com.example.mediaplayer.interfaces.AudioServiceCallback
-import com.example.mediaplayer.interfaces.ProgressBarSource
+import com.example.mediaplayer.interfaces.progressbar.ProgressBarSource
 import com.example.mediaplayer.interfaces.audiointeraction.AudioController
 import com.example.mediaplayer.interfaces.metadatacontainer.MetaDataSource
 import com.example.mediaplayer.interfaces.navigation.FragmentBackPressed
@@ -34,7 +34,8 @@ class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback,
         storage = Storage(applicationContext)
         serviceWorker = ServiceWorker()
         serviceWorker.boundService = savedInstanceState?.getBoolean("isBound") ?: false
-
+        registrarBroadcastsActivity.registerAudioMetaDataFromService(this)
+        registrarBroadcastsActivity.registerAudioTimeFromService(this)
         if (savedInstanceState == null) {
             navigate(getStartedFragment())
         }
@@ -45,16 +46,10 @@ class MainActivity : AppCompatActivity(), AudioController, AudioServiceCallback,
         outState.putBoolean("isBound", serviceWorker.boundService)
     }
 
-    override fun onStart() {
-        super.onStart()
-        registrarBroadcastsActivity.registerAudioTimeFromService(this)
-        registrarBroadcastsActivity.registerAudioMetaDataFromService(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        registrarBroadcastsActivity.unregisterAudioTimeFromService(this)
+    override fun onDestroy() {
+        super.onDestroy()
         registrarBroadcastsActivity.unregisterMetaDataFromService(this)
+        registrarBroadcastsActivity.unregisterAudioTimeFromService(this)
     }
 
     private fun getStartedFragment(): Fragment {

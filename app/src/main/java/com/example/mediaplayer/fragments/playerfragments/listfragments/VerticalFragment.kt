@@ -23,9 +23,6 @@ class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //must be changed impl of saving states fragments
-        if(savedInstanceState!=null) navigate(this)
-
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_vertical)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.VERTICAL)

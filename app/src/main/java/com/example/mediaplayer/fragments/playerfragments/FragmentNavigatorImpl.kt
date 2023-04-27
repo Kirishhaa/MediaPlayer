@@ -1,6 +1,5 @@
 package com.example.mediaplayer.fragments.playerfragments
 
-import android.view.View
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -11,27 +10,25 @@ import com.example.mediaplayer.interfaces.navigation.FragmentNavigator
 import com.example.mediaplayer.storageutils.Storage
 
 class FragmentNavigatorImpl(
-    private val view: View,
+    private val allFr: FrameLayout?,
+    private val favFr: FrameLayout?,
     private val fragmentManager: FragmentManager,
     private val storage: Storage,
 ) : FragmentNavigator {
     override fun navigate(fragment: Fragment, isFavorite: Boolean) {
-        val allFr = view.findViewById<FrameLayout>(R.id.menu_fragment_all_audio)
-        val favFr = view.findViewById<FrameLayout>(R.id.menu_fragment_favorite_audio)
-
         if(fragment is HorizontalFragment) {
             if(storage.readFavoriteMap().isNotEmpty()) {
                 fragmentManager.beginTransaction()
                     .replace(R.id.menu_fragment_favorite_audio, HorizontalFragment.onInstance(true))
                     .commit()
-                favFr.isVisible = true
+                favFr?.isVisible = true
             } else {
-                favFr.isVisible = false
+                favFr?.isVisible = false
             }
             fragmentManager.beginTransaction()
                 .replace(R.id.menu_fragment_all_audio, fragment)
                 .commit()
-            allFr.isVisible = true
+            allFr?.isVisible = true
         } else {
             fragmentManager.fragments.forEach {
                 if (it is HorizontalFragment) {
@@ -51,9 +48,9 @@ class FragmentNavigatorImpl(
                 .commit()
 
             if (isFavorite){
-                allFr.isVisible = false
+                allFr?.isVisible = false
             } else {
-                favFr.isVisible = false
+                favFr?.isVisible = false
             }
         }
     }

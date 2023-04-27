@@ -21,12 +21,10 @@ import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
 class CustomAdapterAudio(
     private val listener: AudioAdapterListener,
     private val type: TypeListFragment,
-) :
-    RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
+) : RecyclerView.Adapter<CustomAdapterAudio.ViewHolder>() {
 
     private var metadata: MetaData = MetaData()
     private var audioList: List<Audio> = emptyList()
-    private val xmlListenerSetter = XMLListenerSetter(listener)
     private val xmlAudioDecorator = XMLAudioDecorator()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -47,7 +45,6 @@ class CustomAdapterAudio(
         xmlAudioDecorator.setTitle(holder.title, position)
         xmlAudioDecorator.setPlayBox(holder.playBox, metadata, position)
 
-
         if (type == TypeListFragment.VERTICAL) {
             holder.title.setOnClickListener {
                 listener.navigate(
@@ -58,7 +55,7 @@ class CustomAdapterAudio(
                 )
             }
         }
-
+        val xmlListenerSetter = XMLListenerSetter(listener)
         holder.playBox.setOnClickListener {
             val prevPos = xmlListenerSetter.setPlayListener(
                 playBox = it as CheckBox,

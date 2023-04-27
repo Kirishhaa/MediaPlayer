@@ -1,14 +1,13 @@
 package com.example.mediaplayer.dataoperations.xml
 
-import android.util.Log
 import android.widget.CheckBox
+import com.example.mediaplayer.fragments.playerfragments.listfragments.HorizontalFragment
+import com.example.mediaplayer.fragments.playerfragments.listfragments.VerticalFragment
+import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.storageutils.Storage
-import com.example.mediaplayer.fragments.playerfragments.listfragments.HorizontalFragment
-import com.example.mediaplayer.fragments.playerfragments.listfragments.VerticalFragment
-import com.example.mediaplayer.interfaces.markers.AudioAdapterListener
 
 class XMLListenerSetter(private val listener: AudioAdapterListener) {
 
@@ -49,8 +48,10 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
     ) {
         if (checkBox.isChecked) {
             listener.addToFavorite(curPos, audioList[curPos])
+            storage.writeFavoriteMap(listener.getFavoriteMap())
         } else {
             listener.removeFromFavorite(audioList[curPos])
+            storage.writeFavoriteMap(listener.getFavoriteMap())
             if (listener.getIsFavoriteState()) {
                 if (curPos == metaData1.currentPosition) {
                     listener.sendStopAudio()
@@ -64,6 +65,5 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
                 }
             }
         }
-        storage.writeFavoriteMap(listener.getFavoriteMap())
     }
 }

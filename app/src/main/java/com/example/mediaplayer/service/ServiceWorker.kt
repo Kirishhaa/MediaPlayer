@@ -31,10 +31,8 @@ class ServiceWorker {
             val intent = Intent(context, MediaPlayerService::class.java)
             context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
             context.startService(intent)
-            Log.d("ServiceWorker", "Unbinded")
         } else {
             intentsHandler.sendPlayAudio(context)
-            Log.d("ServiceWorker", "binded")
         }
     }
 }

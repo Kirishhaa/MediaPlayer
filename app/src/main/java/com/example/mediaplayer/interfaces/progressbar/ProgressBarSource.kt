@@ -1,4 +1,4 @@
-package com.example.mediaplayer.interfaces
+package com.example.mediaplayer.interfaces.progressbar
 
 interface ProgressBarSource {
     fun updateAudioCurrentTime(data: Pair<Int, Int>)

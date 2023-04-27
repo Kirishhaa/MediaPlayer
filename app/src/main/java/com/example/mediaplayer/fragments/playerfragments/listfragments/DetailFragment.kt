@@ -8,10 +8,9 @@ import android.widget.TextView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.dataoperations.xml.XMLAudioDecorator
 import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
-import com.example.mediaplayer.interfaces.ProgressBarContainer
+import com.example.mediaplayer.interfaces.progressbar.  ProgressBarContainer
 import com.example.mediaplayer.fragments.playerfragments.basefragments.BaseListFragment
-import com.example.mediaplayer.interfaces.ProgressBarSource
-import com.example.mediaplayer.interfaces.markers.SourceFragment
+import com.example.mediaplayer.interfaces.progressbar.ProgressBarSource
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.models.PlaybackStatus
 import com.example.mediaplayer.storageutils.Storage
@@ -35,7 +34,6 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail),
     private val nextImage by lazy { view?.findViewById<ImageView>(R.id.detail_next_audio) }
 
     private var detailPosition = 0
-    private var currentAudioTime: Pair<Int, Int> = Pair(0, 0)
     private var xmlAudioDecorator = XMLAudioDecorator()
 
     companion object {
@@ -47,27 +45,8 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail),
         }
     }
 
-    override fun setMetaData(metadata: MetaData) {
-        this.metaData = metadata
-        if (metadata.currentPosition == detailPosition) {
-            playBox?.isChecked = metadata.state == PlaybackStatus.PLAYING
-        } else {
-            playBox?.isChecked = false
-        }
-    }
-
-    private fun updateData() {
-        xmlAudioDecorator.setImageArt(imageArt, detailPosition)
-        xmlAudioDecorator.setTitle(title, detailPosition)
-        xmlAudioDecorator.setPlayBox(playBox, metaData, detailPosition)
-        xmlAudioDecorator.setFavoriteBox(favoriteBox, audioList, detailPosition)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //must be changed impl of saving states fragments
-        if (savedInstanceState != null) navigate(this)
         detailPosition = savedInstanceState?.getInt("detailPosition") ?: detailPosition
         isFavorite = savedInstanceState?.getBoolean("isFavorite") ?: isFavorite
 
@@ -126,6 +105,22 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail),
     override fun onBackPressed(): Boolean {
         navigate(VerticalFragment.onInstance(isFavorite))
         return true
+    }
+
+    override fun setMetaData(metadata: MetaData) {
+        this.metaData = metadata
+        if (metadata.currentPosition == detailPosition) {
+            playBox?.isChecked = metadata.state == PlaybackStatus.PLAYING
+        } else {
+            playBox?.isChecked = false
+        }
+    }
+
+    private fun updateData() {
+        xmlAudioDecorator.setImageArt(imageArt, detailPosition)
+        xmlAudioDecorator.setTitle(title, detailPosition)
+        xmlAudioDecorator.setPlayBox(playBox, metaData, detailPosition)
+        xmlAudioDecorator.setFavoriteBox(favoriteBox, audioList, detailPosition)
     }
 
     override fun setCurrentTime(data: Pair<Int, Int>) {

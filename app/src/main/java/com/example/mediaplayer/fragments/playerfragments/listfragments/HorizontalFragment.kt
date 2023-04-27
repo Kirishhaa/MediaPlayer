@@ -21,15 +21,11 @@ class HorizontalFragment : BaseListFragment(R.layout.fragment_list_horizontal) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //Must be changed
-        if(savedInstanceState!=null) navigate(this)
         val tvAsList = view.findViewById<TextView>(R.id.tv_see_as_list)
         tvAsList.setOnClickListener { navigate(VerticalFragment.onInstance(isFavorite)) }
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_music_list_horizontal)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.HORIZONTAL)
-
-
         setList(audioList, decoratorList)
         setMetaData(metaData)
         recycler.adapter = adapter

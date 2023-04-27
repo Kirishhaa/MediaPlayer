@@ -2,6 +2,7 @@ package com.example.mediaplayer.fragments.playerfragments
 
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -12,29 +13,40 @@ import com.example.mediaplayer.models.Audio
 import com.example.mediaplayer.models.AudioEntity
 import com.example.mediaplayer.models.MetaData
 import com.example.mediaplayer.fragments.BaseFragment
-import com.example.mediaplayer.interfaces.ProgressBarContainer
+import com.example.mediaplayer.interfaces.progressbar.ProgressBarContainer
 import com.example.mediaplayer.fragments.playerfragments.listfragments.HorizontalFragment
 import com.example.mediaplayer.interfaces.markers.BaseListInteraction
 import com.example.mediaplayer.interfaces.markers.SourceFragment
 import com.example.mediaplayer.interfaces.navigation.FragmentNavigator
 import com.example.mediaplayer.toolbar.CustomToolBar
+import java.lang.ref.WeakReference
 
 class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
     private val viewModel: AudioViewModel by lazy { ViewModelProvider(this)[AudioViewModel::class.java] }
-    private lateinit var storage: Storage
     private lateinit var navigator: FragmentNavigator
     private lateinit var toolBar: CustomToolBar
+
+    private val favFr by lazy { view?.findViewById<FrameLayout>(R.id.menu_fragment_favorite_audio) }
+    private val allFr by lazy { view?.findViewById<FrameLayout>(R.id.menu_fragment_all_audio) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toolBar = view.findViewById(R.id.toolbar)
 
-        storage = Storage(requireContext().applicationContext)
-        navigator = FragmentNavigatorImpl(view, childFragmentManager, storage)
+        val storage = Storage(requireContext().applicationContext)
+        navigator = FragmentNavigatorImpl(
+            WeakReference<FrameLayout>(allFr).get(),
+            WeakReference<FrameLayout>(favFr).get(),
+            childFragmentManager,
+            storage
+        )
 
         if (savedInstanceState == null) {
             viewModel.initialize(storage.readAllAudioList(), storage.readFavoriteMap())
             navigator.navigate(HorizontalFragment())
+        } else {
+            favFr?.isVisible = savedInstanceState.getBoolean("favoriteIsVisible")
+            allFr?.isVisible = savedInstanceState.getBoolean("allIsVisible")
         }
 
         viewModel.metaData.observe(viewLifecycleOwner) {
@@ -68,13 +80,20 @@ class MenuFragment : BaseFragment(R.layout.fragment_menu), SourceFragment {
             }
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("favoriteIsVisible", favFr?.isVisible ?: false)
+        outState.putBoolean("allIsVisible", allFr?.isVisible ?: false)
+    }
+
     //PROGRESSBAR
     override fun updateAudioCurrentTime(data: Pair<Int, Int>) {
         viewModel.updateAudioCurrentTime(data)
     }
 
     override fun getAudioCurrentTime(): Pair<Int, Int> {
-        return viewModel.audioCurrentTime.value ?: Pair(-1,-1)
+        return viewModel.audioCurrentTime.value ?: Pair(-1, -1)
     }
 
 

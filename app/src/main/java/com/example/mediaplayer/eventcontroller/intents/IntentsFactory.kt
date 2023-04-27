@@ -38,8 +38,4 @@ class IntentsFactory {
             else -> null
         }
     }
-
-//    fun createApplicationSettingIntent(): Intent {
-//        return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-//    }
 }
