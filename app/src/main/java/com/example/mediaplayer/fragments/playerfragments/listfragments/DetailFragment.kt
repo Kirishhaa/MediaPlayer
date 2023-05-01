@@ -8,7 +8,7 @@ import android.widget.TextView
 import com.example.mediaplayer.R
 import com.example.mediaplayer.dataoperations.xml.XMLAudioDecorator
 import com.example.mediaplayer.dataoperations.xml.XMLListenerSetter
-import com.example.mediaplayer.interfaces.progressbar.  ProgressBarContainer
+import com.example.mediaplayer.interfaces.progressbar.ProgressBarContainer
 import com.example.mediaplayer.fragments.playerfragments.basefragments.BaseListFragment
 import com.example.mediaplayer.interfaces.progressbar.ProgressBarSource
 import com.example.mediaplayer.models.MetaData
@@ -70,9 +70,9 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail),
             )
         }
         favoriteBox?.setOnClickListener {
-            xmlListenerSetter.setFavoriteListener(
+            val a = xmlListenerSetter.setFavoriteListener(
                 checkBox = it as CheckBox,
-                metaData1 = metaData,
+                metaData = metaData,
                 curPos = detailPosition,
                 audioList = audioList,
                 storage = storage
@@ -124,10 +124,7 @@ class DetailFragment : BaseListFragment(R.layout.fragment_detail),
     }
 
     override fun setCurrentTime(data: Pair<Int, Int>) {
-        if (((isFavorite && metaData.isFavorite)
-                    || (!isFavorite && !metaData.isFavorite))
-            && metaData.currentPosition == detailPosition
-        ) {
+        if (metaData.currentPosition == detailPosition) {
             if (progressBar != null) {
                 xmlAudioDecorator.setProgressBar(progressBar, progressBarTime, data)
             }

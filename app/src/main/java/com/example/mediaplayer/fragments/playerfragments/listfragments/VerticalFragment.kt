@@ -26,9 +26,9 @@ class VerticalFragment : BaseListFragment(R.layout.fragment_list_vertical) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_vertical)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = CustomAdapterAudio(this, CustomAdapterAudio.TypeListFragment.VERTICAL)
+        recycler.adapter = adapter
         setList(audioList, decoratorList)
         setMetaData(metaData)
-        recycler.adapter = adapter
     }
 
     override fun onBackPressed(): Boolean {

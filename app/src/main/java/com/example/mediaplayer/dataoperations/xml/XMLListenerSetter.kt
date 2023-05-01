@@ -41,7 +41,7 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
 
     fun setFavoriteListener(
         checkBox: CheckBox,
-        metaData1: MetaData,
+        metaData: MetaData,
         curPos: Int,
         audioList: List<Audio>,
         storage: Storage,
@@ -52,18 +52,10 @@ class XMLListenerSetter(private val listener: AudioAdapterListener) {
         } else {
             listener.removeFromFavorite(audioList[curPos])
             storage.writeFavoriteMap(listener.getFavoriteMap())
-            if (listener.getIsFavoriteState()) {
-                if (curPos == metaData1.currentPosition) {
-                    listener.sendStopAudio()
-                }
-                if (!listener.favoriteIsNotEmpty()) {
-                    listener.navigate(HorizontalFragment())
-                } else listener.navigate(VerticalFragment.onInstance(true))
-            } else {
-                if (curPos == metaData1.currentPosition && storage.readFavorite()) {
-                    listener.sendStopAudio()
-                }
-            }
+            if(metaData.isFavorite) listener.sendStopAudio()
+            if (!listener.favoriteIsNotEmpty() && listener.getIsFavoriteState()) {
+                listener.navigate(HorizontalFragment())
+            } else listener.navigate(VerticalFragment.onInstance(listener.getIsFavoriteState()))
         }
     }
 }

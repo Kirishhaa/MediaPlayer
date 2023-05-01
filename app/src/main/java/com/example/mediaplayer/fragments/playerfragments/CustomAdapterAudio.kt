@@ -26,6 +26,7 @@ class CustomAdapterAudio(
     private var metadata: MetaData = MetaData()
     private var audioList: List<Audio> = emptyList()
     private val xmlAudioDecorator = XMLAudioDecorator()
+    private val xmlListenerSetter = XMLListenerSetter(listener)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutRes = when (type) {
@@ -40,7 +41,6 @@ class CustomAdapterAudio(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         xmlAudioDecorator.setImageArt(holder.artImage, position)
         xmlAudioDecorator.setTitle(holder.title, position)
         xmlAudioDecorator.setPlayBox(holder.playBox, metadata, position)
@@ -55,7 +55,6 @@ class CustomAdapterAudio(
                 )
             }
         }
-        val xmlListenerSetter = XMLListenerSetter(listener)
         holder.playBox.setOnClickListener {
             val prevPos = xmlListenerSetter.setPlayListener(
                 playBox = it as CheckBox,
